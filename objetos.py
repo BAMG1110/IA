@@ -29,10 +29,10 @@ class SerVivo(Materia):
         self.vel = 32
 
     def checkBoundaries(self):
+        # print(f"x: {x}, y:{y}, coord: {self.coord}, b:{b}")
         x = self.coord[0]
         y = self.coord[1]
         b = [True, True, True, True]
-        # print(f"x: {x}, y:{y}, coord: {self.coord}, b:{b}")
         if x == (map_width) - 32:
             b[0] = False
         if y == 0:
@@ -51,14 +51,14 @@ class SerVivo(Materia):
 
     def accion(self, evento):
         # print(f"evento: {evento}")
-
-        if evento == pygame.K_d:
+        b = self.checkBoundaries()
+        if evento == pygame.K_d and b[0]:
             self.coord[0] += self.vel
-        if evento == pygame.K_w:
+        if evento == pygame.K_w and b[1]:
             self.coord[1] -= self.vel
-        if evento == pygame.K_a:
+        if evento == pygame.K_a and b[2]:
             self.coord[0] -= self.vel
-        if evento == pygame.K_s:
+        if evento == pygame.K_s and b[3]:
             self.coord[1] += self.vel
 
         if evento == pygame.K_i:

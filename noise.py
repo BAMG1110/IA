@@ -32,7 +32,6 @@ if __name__ == "__main__":
                   
 
         # update
-        mabby.checkBoundaries()
         mabby.movRandom()
         todo.fill((0,0,0))
         mabby.draw(todo, (255,255,255))
