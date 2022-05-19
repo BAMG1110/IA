@@ -1,6 +1,6 @@
 import pygame
 from objetos import *
-
+# funcionamiento del entorno
 def mouse():
     x,y = pygame.mouse.get_pos()
     pos = [x//32, y//32]
