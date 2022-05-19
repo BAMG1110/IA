@@ -20,11 +20,9 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
 
     # objetos
-    mabby = SerVivo(1, "mabby")
-    objetos = []
+    mabby = SerVivo(id=1, name="mabby", color=(255,0,255))
 
     todo.fill((0,0,0))
-    # mapa.draw(todo)
 
     while run:
         # time delay _& fps
@@ -47,17 +45,18 @@ if __name__ == "__main__":
             # escuchar mouse
             mouse_pos = mouse()
             if mouse_pos:
-                print(len(objetos), "\n")
-                objetos.append(crearObjeto(mouse_pos))
+                obj = Materia(2, "algun tipo de piedra", mouse_pos)
+                Todo.agregarObjeto(obj)
+                Todo.info()
 
                   
 
         # update
-        # mabby.movRandom()
+        mabby.movRandom()
         
 
         todo.fill((0,0,0))
-        # mabby.draw(todo, (255,0,255))
+        mabby.draw(todo)
         
         pygame.display.update()
     
