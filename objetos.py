@@ -4,23 +4,43 @@ import random
 map_width = 512
 map_height = 512
 
-def generarMatriz():
+def generarMatriz(t):
     m = []
     for x in range(map_width//32):
         x = []
         for y in range(map_height//32):
-            x.append(None)
+            x.append(t)
         m.append(x)
     return m
 
 class Todo:
-    objetos = generarMatriz()
+    objetos = generarMatriz(None)
+
+    @classmethod
+    def definirOrigen():
+        x,y = pygame.mouse.get_pos()
+        pos = [(x//32)*32, (y//32)*32]
+        return pos
+
+    @classmethod
+    def definirMeta():
+        x,y = pygame.mouse.get_pos()
+        pos = [(x//32)*32, (y//32)*32]
+        return pos
 
     @classmethod
     def agregarObjeto(cls, obj):
         # cls.objetos[obj.coord[0]][obj.coord[1]]
         x, y = obj.coord[0]//32, obj.coord[1]//32
         cls.objetos[x][y] = obj
+    
+    @classmethod
+    def eliminarObjeto(cls, pos):
+        # cls.objetos[obj.coord[0]][obj.coord[1]]
+        # print(f"pos: {pos}")
+        x, y = pos[0]//32, pos[1]//32
+        print("coord", x, y)
+        cls.objetos[x][y] = None
 
     @classmethod
     def verObjetos(cls):
@@ -44,12 +64,14 @@ class Todo:
         pos = [(x//32)*32, (y//32)*32]
 
         if pygame.mouse.get_pressed()[0] == True:
-            return pos
+            return pos, False
+        elif pygame.mouse.get_pressed()[2] == True:
+            return pos, True
         else:
-            return False
+            return False, False
 
 class Materia():
-    def __init__(self, id, name, color, coord=[256, 256], size=[32, 32]):
+    def __init__(self, id, name, color, coord, size=[32, 32]):
         self.id = id
         self.name = name
         self.color = color
@@ -68,12 +90,18 @@ class Materia():
         print('nombre:     \t', self.name)
 
 class SerVivo(Materia):
-    def __init__(self, id, name, color):
-        super().__init__(id, name, color)
+    def __init__(self, id, name, color, coord, mapa = generarMatriz(0)):
+        super().__init__(id, name, color, coord)
+        self.mapa = mapa
         self.moving = False
         self.vel = 32
-        self.mapa = generarMatriz()
 
+    @property
+    def verMapa(self):
+        print("mapa")
+        for i in self.mapa:
+            print(f"{i}")
+            
     def checkBorders(self):
         # print(f"x: {x}, y:{y}, coord: {self.coord}, b:{b}")
         x = self.coord[0]
@@ -88,7 +116,6 @@ class SerVivo(Materia):
         if y == (map_height) - 32:
             b[3] = False
 
-        
         return b
 
     def movRandom(self):
@@ -100,21 +127,34 @@ class SerVivo(Materia):
     def accion(self, evento):
         # print(f"evento: {evento}")
         b = self.checkBorders()
+        coord_x = self.coord[0]
+        coord_y = self.coord[1]
+
         if evento == pygame.K_d and b[0]:
-            if not(Todo.objetos[(self.coord[0]+32)//32][self.coord[1]//32]):
+            if not(Todo.objetos[(coord_x+32)//32][coord_y//32]):
                 self.coord[0] += self.vel
+                self.mapa[coord_y//32][coord_x//32] += 1
+        
         if evento == pygame.K_w and b[1]:
-            if not(Todo.objetos[(self.coord[0])//32][(self.coord[1]-32)//32]):
+            if not(Todo.objetos[(coord_x)//32][(coord_y-32)//32]):
                 self.coord[1] -= self.vel
+                self.mapa[coord_y//32][coord_x//32] += 1
+
         if evento == pygame.K_a and b[2]:
-            if not(Todo.objetos[(self.coord[0]-32)//32][self.coord[1]//32]):
+            if not(Todo.objetos[(coord_x-32)//32][coord_y//32]):
                 self.coord[0] -= self.vel
+                self.mapa[coord_y//32][coord_x//32] += 1
+        
         if evento == pygame.K_s and b[3]:
-            if not(Todo.objetos[(self.coord[0])//32][(self.coord[1]+32)//32]):
+            if not(Todo.objetos[(coord_x)//32][(coord_y+32)//32]):
                 self.coord[1] += self.vel
+                self.mapa[coord_y//32][coord_x//32] += 1
 
         if evento == pygame.K_i:
             self.descripcion
+
+        if evento == pygame.K_u:
+            self.verMapa
 
         if evento == pygame.K_SPACE:
             if self.moving:

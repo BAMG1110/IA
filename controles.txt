@@ -1,0 +1,7 @@
+u: ver mapa
+i: informacion del agente
+o: ver objetos
+p: origen
+j: destino
+
+wasd: movimiento
