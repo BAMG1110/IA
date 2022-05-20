@@ -1,28 +1,16 @@
 import pygame
 from objetos import *
 # funcionamiento del entorno
-def mouse():
-    x,y = pygame.mouse.get_pos()
-    pos = [x//32, y//32]
-
-    if pygame.mouse.get_pressed()[0] == True:
-        return pos
-    else:
-        return False
-
-
-def crearObjeto(pos):
-    return Materia(2, "Algun tipo de piedra", pos)
 
 if __name__ == "__main__":
     run = True
-    todo = pygame.display.set_mode((map_width, map_height))
+    ventana = pygame.display.set_mode((map_width, map_height))
     clock = pygame.time.Clock()
 
     # objetos
     mabby = SerVivo(id=1, name="mabby", color=(255,0,255))
 
-    todo.fill((0,0,0))
+    ventana.fill((0,0,0))
 
     while run:
         # time delay _& fps
@@ -34,29 +22,30 @@ if __name__ == "__main__":
             # cerrar ventana
             if e.type == pygame.QUIT:
                 run = False
+
             # escuchar teclado
             elif e.type == pygame.KEYDOWN:
                 try:
                     key = getattr(e, 'key')
-                    mabby.accion(key)
+                    if pygame.K_o == key:
+                        Todo.verObjetos()
+                    else:
+                        mabby.accion(key)
                 except:
                     pass
             
             # escuchar mouse
-            mouse_pos = mouse()
+            mouse_pos = Todo.mouse()
             if mouse_pos:
-                obj = Materia(2, "algun tipo de piedra", mouse_pos)
+                obj = Materia(2, "algun tipo de piedra", (255, 0, 0), mouse_pos)
                 Todo.agregarObjeto(obj)
-                Todo.info()
-
-                  
 
         # update
-        mabby.movRandom()
-        
+        ventana.fill((0,0,0))
 
-        todo.fill((0,0,0))
-        mabby.draw(todo)
+        mabby.movRandom()
+        mabby.draw(ventana)
+        Todo.draw(ventana)
         
         pygame.display.update()
     
