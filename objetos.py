@@ -3,12 +3,13 @@ import random
 
 map_width = 512
 map_height = 512
+obj_size = 16
 
 def generarMatriz(t):
     m = []
-    for x in range(map_width//32):
+    for x in range(map_width//obj_size):
         x = []
-        for y in range(map_height//32):
+        for y in range(map_height//obj_size):
             x.append(t)
         m.append(x)
     return m
@@ -17,31 +18,11 @@ class Todo:
     objetos = generarMatriz(None)
 
     @classmethod
-    def definirOrigen():
-        x,y = pygame.mouse.get_pos()
-        pos = [(x//32)*32, (y//32)*32]
-        return pos
-
-    @classmethod
-    def definirMeta():
-        x,y = pygame.mouse.get_pos()
-        pos = [(x//32)*32, (y//32)*32]
-        return pos
-
-    @classmethod
     def agregarObjeto(cls, obj):
         # cls.objetos[obj.coord[0]][obj.coord[1]]
-        x, y = obj.coord[0]//32, obj.coord[1]//32
+        x, y = obj.coord[0]//obj_size, obj.coord[1]//obj_size
         cls.objetos[x][y] = obj
     
-    @classmethod
-    def eliminarObjeto(cls, pos):
-        # cls.objetos[obj.coord[0]][obj.coord[1]]
-        # print(f"pos: {pos}")
-        x, y = pos[0]//32, pos[1]//32
-        print("coord", x, y)
-        cls.objetos[x][y] = None
-
     @classmethod
     def verObjetos(cls):
         print("objetos")
@@ -50,6 +31,14 @@ class Todo:
                 if obj:
                     print(f"{obj.descripcion}\n")
         print("@\n")
+
+    @classmethod
+    def eliminarObjeto(cls, pos):
+        # cls.objetos[obj.coord[0]][obj.coord[1]]
+        # print(f"pos: {pos}")
+        x, y = pos[0]//obj_size, pos[1]//obj_size
+        print("coord", x, y)
+        cls.objetos[x][y] = None
 
     @classmethod
     def draw(cls, todo):
@@ -61,7 +50,7 @@ class Todo:
     @classmethod
     def mouse(cls):
         x,y = pygame.mouse.get_pos()
-        pos = [(x//32)*32, (y//32)*32]
+        pos = [(x//obj_size)*obj_size, (y//obj_size)*obj_size]
 
         if pygame.mouse.get_pressed()[0] == True:
             return pos, False
@@ -71,7 +60,7 @@ class Todo:
             return False, False
 
 class Materia():
-    def __init__(self, id, name, color, coord, size=[32, 32]):
+    def __init__(self, id, name, color, coord, size=[obj_size, obj_size]):
         self.id = id
         self.name = name
         self.color = color
@@ -86,7 +75,7 @@ class Materia():
     @property
     def descripcion(self):
         print('id:         \t', self.id)
-        print('coordenadas:\t', self.coord[0] // 32, self.coord[1] // 32)
+        print('coordenadas:\t', self.coord[0] // obj_size, self.coord[1] // obj_size)
         print('nombre:     \t', self.name)
 
 class SerVivo(Materia):
@@ -94,8 +83,12 @@ class SerVivo(Materia):
         super().__init__(id, name, color, coord)
         self.mapa = mapa
         self.moving = False
-        self.vel = 32
+        self.vel = obj_size
 
+        # def definirOrigen():
+        # x,y = pygame.mouse.get_pos()
+        # pos = [(x//obj_size)*obj_size, (y//obj_size)*obj_size]
+        # return pos
     @property
     def verMapa(self):
         print("mapa")
@@ -107,13 +100,13 @@ class SerVivo(Materia):
         x = self.coord[0]
         y = self.coord[1]
         b = [True, True, True, True]
-        if x == (map_width) - 32:
+        if x == (map_width) - obj_size:
             b[0] = False
         if y == 0:
             b[1] = False
         if x == 0:
             b[2] = False
-        if y == (map_height) - 32:
+        if y == (map_height) - obj_size:
             b[3] = False
 
         return b
@@ -126,40 +119,45 @@ class SerVivo(Materia):
 
     def accion(self, evento):
         # print(f"evento: {evento}")
+        # print(f"x, y: {self.coord[0]}, {self.coord[1]} - {Todo.objetos[(self.coord[0]+obj_size)//32][self.coord[1]//32].descripcion}@\n")
         b = self.checkBorders()
         coord_x = self.coord[0]
         coord_y = self.coord[1]
 
+        # wasd
         if evento == pygame.K_d and b[0]:
-            if not(Todo.objetos[(coord_x+32)//32][coord_y//32]):
+            if not(Todo.objetos[(coord_x+obj_size)//obj_size][coord_y//obj_size]):
                 self.coord[0] += self.vel
-                self.mapa[coord_y//32][coord_x//32] += 1
+                if self.mapa[coord_y//obj_size][coord_x//obj_size] is not("origen"):
+                    self.mapa[coord_y//obj_size][coord_x//obj_size] += 1
         
         if evento == pygame.K_w and b[1]:
-            if not(Todo.objetos[(coord_x)//32][(coord_y-32)//32]):
+            if not(Todo.objetos[(coord_x)//obj_size][(coord_y-obj_size)//obj_size]):
                 self.coord[1] -= self.vel
-                self.mapa[coord_y//32][coord_x//32] += 1
+                self.mapa[coord_y//obj_size][coord_x//obj_size] += 1
 
         if evento == pygame.K_a and b[2]:
-            if not(Todo.objetos[(coord_x-32)//32][coord_y//32]):
+            if not(Todo.objetos[(coord_x-obj_size)//obj_size][coord_y//obj_size]):
                 self.coord[0] -= self.vel
-                self.mapa[coord_y//32][coord_x//32] += 1
-        
-        if evento == pygame.K_s and b[3]:
-            if not(Todo.objetos[(coord_x)//32][(coord_y+32)//32]):
-                self.coord[1] += self.vel
-                self.mapa[coord_y//32][coord_x//32] += 1
+                self.mapa[coord_y//obj_size][coord_x//obj_size] += 1
 
+        if evento == pygame.K_s and b[3]:
+            if not(Todo.objetos[(coord_x)//obj_size][(coord_y+obj_size)//obj_size]):
+                self.coord[1] += self.vel
+                self.mapa[coord_y//obj_size][coord_x//obj_size] += 1
+
+        # descripcion
         if evento == pygame.K_i:
             self.descripcion
-
+        
+        # mapa
         if evento == pygame.K_u:
             self.verMapa
-
+        
+        # mover random
         if evento == pygame.K_SPACE:
             if self.moving:
                 self.moving = False
             else:
                 self.moving = True
 
-        # print(f"x, y: {self.coord[0]}, {self.coord[1]} - {Todo.objetos[(self.coord[0]+32)//32][self.coord[1]//32].descripcion}@\n")

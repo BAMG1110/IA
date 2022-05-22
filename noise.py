@@ -8,7 +8,7 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
 
     # objetos
-    # mabby = SerVivo(id=1, name="mabby", color=(255,0,255), coord=[256, 256])
+    mabby = SerVivo(id=1, name="mabby", color=(255,0,255), coord=[256, 256])
 
     ventana.fill((0,0,0))
 
@@ -27,11 +27,11 @@ if __name__ == "__main__":
             elif e.type == pygame.KEYDOWN:
                 try:
                     key = getattr(e, 'key')
-                    if key == pygame.K_o:
+                    if key == pygame.K_m:
                         Todo.verObjetos()
-                    elif key == pygame.K_j:
+                    elif key == pygame.K_o:
                         pass
-                    elif key == pygame.K_k:
+                    elif key == pygame.K_p:
                         pass
                     else:
                         mabby.accion(key)
