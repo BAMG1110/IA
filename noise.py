@@ -30,22 +30,18 @@ if __name__ == "__main__":
                     if key == pygame.K_m:
                         Todo.verObjetos()
                     elif key == pygame.K_o:
-                        pass
+                        mabby.defOrigen()
                     elif key == pygame.K_p:
-                        pass
+                        Todo.defMeta()
                     else:
                         mabby.accion(key)
                 except:
                     pass
             
             # escuchar mouse
-            mouse_pos, mouse_delete = Todo.mouse()
-            if mouse_pos:
-                if mouse_delete:
-                    Todo.eliminarObjeto(mouse_pos)
-                else:
-                    obj = Materia(2, "algun tipo de piedra", (255, 0, 0), mouse_pos)
-                    Todo.agregarObjeto(obj)
+            Todo.mouse()
+                
+                    
 
         # update
         ventana.fill((0,0,0))

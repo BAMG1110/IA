@@ -16,6 +16,7 @@ def generarMatriz(t):
 
 class Todo:
     objetos = generarMatriz(None)
+    meta_actual = False
 
     @classmethod
     def agregarObjeto(cls, obj):
@@ -37,8 +38,22 @@ class Todo:
         # cls.objetos[obj.coord[0]][obj.coord[1]]
         # print(f"pos: {pos}")
         x, y = pos[0]//obj_size, pos[1]//obj_size
-        print("coord", x, y)
         cls.objetos[x][y] = None
+
+    @classmethod
+    def defMeta(cls):
+        x,y = pygame.mouse.get_pos()
+        pos = [(x//obj_size)*obj_size, (y//obj_size)*obj_size]
+
+        if cls.meta_actual != pos:
+            try:
+                cls.eliminarObjeto(cls.meta_actual)
+            except:
+                pass
+            cls.meta_actual = pos
+
+        obj = Materia(3, "Meta", (0, 255, 0), cls.meta_actual)
+        cls.agregarObjeto(obj)
 
     @classmethod
     def draw(cls, todo):
@@ -53,11 +68,10 @@ class Todo:
         pos = [(x//obj_size)*obj_size, (y//obj_size)*obj_size]
 
         if pygame.mouse.get_pressed()[0] == True:
-            return pos, False
+            obj = Materia(2, "algun tipo de piedra", (255, 0, 0), pos)
+            cls.agregarObjeto(obj)
         elif pygame.mouse.get_pressed()[2] == True:
-            return pos, True
-        else:
-            return False, False
+            cls.eliminarObjeto(pos)
 
 class Materia():
     def __init__(self, id, name, color, coord, size=[obj_size, obj_size]):
@@ -85,10 +99,12 @@ class SerVivo(Materia):
         self.moving = False
         self.vel = obj_size
 
-        # def definirOrigen():
-        # x,y = pygame.mouse.get_pos()
-        # pos = [(x//obj_size)*obj_size, (y//obj_size)*obj_size]
-        # return pos
+    
+    def defOrigen(self):
+        x,y = pygame.mouse.get_pos()
+        pos = [(x//obj_size)*obj_size, (y//obj_size)*obj_size]
+        self.coord = pos
+
     @property
     def verMapa(self):
         print("mapa")
@@ -124,27 +140,44 @@ class SerVivo(Materia):
         coord_x = self.coord[0]
         coord_y = self.coord[1]
 
+        # meta alcanzada
         # wasd
         if evento == pygame.K_d and b[0]:
-            if not(Todo.objetos[(coord_x+obj_size)//obj_size][coord_y//obj_size]):
+            obj_der = Todo.objetos[(coord_x+obj_size)//obj_size][coord_y//obj_size]
+            if not(obj_der):
                 self.coord[0] += self.vel
-                if self.mapa[coord_y//obj_size][coord_x//obj_size] is not("origen"):
-                    self.mapa[coord_y//obj_size][coord_x//obj_size] += 1
+                self.mapa[coord_y//obj_size][coord_x//obj_size] += 1
+            elif obj_der.id == 3:
+                self.coord[0] += self.vel
+                self.moving = False
         
         if evento == pygame.K_w and b[1]:
-            if not(Todo.objetos[(coord_x)//obj_size][(coord_y-obj_size)//obj_size]):
+            obj_arriba = Todo.objetos[(coord_x)//obj_size][(coord_y-obj_size)//obj_size]
+            if not(obj_arriba):
                 self.coord[1] -= self.vel
                 self.mapa[coord_y//obj_size][coord_x//obj_size] += 1
+            elif obj_arriba.id == 3:
+                self.coord[1] -= self.vel
+                self.moving = False
+
 
         if evento == pygame.K_a and b[2]:
-            if not(Todo.objetos[(coord_x-obj_size)//obj_size][coord_y//obj_size]):
+            obj_izq = Todo.objetos[(coord_x-obj_size)//obj_size][coord_y//obj_size]
+            if not(obj_izq):
                 self.coord[0] -= self.vel
                 self.mapa[coord_y//obj_size][coord_x//obj_size] += 1
+            elif obj_izq.id == 3:
+                self.coord[0] -= self.vel
+                self.moving = False
 
         if evento == pygame.K_s and b[3]:
-            if not(Todo.objetos[(coord_x)//obj_size][(coord_y+obj_size)//obj_size]):
+            obj_abajo = Todo.objetos[(coord_x)//obj_size][(coord_y+obj_size)//obj_size]
+            if not(obj_abajo):
                 self.coord[1] += self.vel
                 self.mapa[coord_y//obj_size][coord_x//obj_size] += 1
+            elif obj_abajo.id == 3:
+                self.coord[1] += self.vel
+                self.moving = False
 
         # descripcion
         if evento == pygame.K_i:
