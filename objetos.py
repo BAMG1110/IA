@@ -37,8 +37,8 @@ class Todo:
     def eliminarObjeto(cls, pos):
         # cls.objetos[obj.coord[0]][obj.coord[1]]
         # print(f"pos: {pos}")
-        x, y = pos[0]//obj_size, pos[1]//obj_size
-        cls.objetos[x][y] = None
+        x, y = pos[1]//obj_size, pos[0]//obj_size
+        cls.objetos[x][y] = 0
 
     @classmethod
     def defMeta(cls):
@@ -146,8 +146,9 @@ class SerVivo(Materia):
         # meta alcanzada
         # wasd
         if evento == pygame.K_d and b[0]:
-            obj_der = Todo.objetos[(coord_x+obj_size)//obj_size][coord_y//obj_size]
-            if not(obj_der):
+            obj_der = Todo.objetos[coord_y//obj_size][(coord_x+obj_size)//obj_size]
+            print(f"obj_der: {obj_der}")
+            if obj_der == 0:
                 self.coord[0] += self.vel
                 self.mapa[coord_y//obj_size][coord_x//obj_size] += 1
             elif obj_der.id == 3:
@@ -155,7 +156,8 @@ class SerVivo(Materia):
                 self.moving = False
         
         if evento == pygame.K_w and b[1]:
-            obj_arriba = Todo.objetos[(coord_x)//obj_size][(coord_y-obj_size)//obj_size]
+            obj_arriba = Todo.objetos[(coord_y-obj_size)//obj_size][(coord_x)//obj_size]
+            print(f"obj_arriba: {obj_arriba}")
             if not(obj_arriba):
                 self.coord[1] -= self.vel
                 self.mapa[coord_y//obj_size][coord_x//obj_size] += 1
@@ -165,7 +167,8 @@ class SerVivo(Materia):
 
 
         if evento == pygame.K_a and b[2]:
-            obj_izq = Todo.objetos[(coord_x-obj_size)//obj_size][coord_y//obj_size]
+            obj_izq = Todo.objetos[coord_y//obj_size][(coord_x-obj_size)//obj_size]
+            print(f"obj_izq: {obj_izq}")
             if not(obj_izq):
                 self.coord[0] -= self.vel
                 self.mapa[coord_y//obj_size][coord_x//obj_size] += 1
@@ -174,7 +177,8 @@ class SerVivo(Materia):
                 self.moving = False
 
         if evento == pygame.K_s and b[3]:
-            obj_abajo = Todo.objetos[(coord_x)//obj_size][(coord_y+obj_size)//obj_size]
+            obj_abajo = Todo.objetos[(coord_y+obj_size)//obj_size][(coord_x)//obj_size]
+            print(f"obj_abajo: {obj_abajo}")
             if not(obj_abajo):
                 self.coord[1] += self.vel
                 self.mapa[coord_y//obj_size][coord_x//obj_size] += 1

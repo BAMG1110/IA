@@ -35,7 +35,9 @@ if __name__ == "__main__":
                     elif key == pygame.K_p:
                         Todo.defMeta()
                     else:
+                        Todo.eliminarObjeto(mabby.coord)
                         mabby.accion(key)
+                        Todo.agregarObjeto(mabby)
                 except:
                     pass
             
