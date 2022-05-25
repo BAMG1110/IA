@@ -3,7 +3,7 @@ import random
 
 map_width = 512
 map_height = 512
-obj_size = 16
+obj_size = 32
 
 def generarMatriz(t):
     m = []
@@ -15,23 +15,23 @@ def generarMatriz(t):
     return m
 
 class Todo:
-    objetos = generarMatriz(None)
+    objetos = generarMatriz(0)
     meta_actual = False
 
     @classmethod
     def agregarObjeto(cls, obj):
         # cls.objetos[obj.coord[0]][obj.coord[1]]
-        x, y = obj.coord[0]//obj_size, obj.coord[1]//obj_size
+        x, y = obj.coord[1]//obj_size, obj.coord[0]//obj_size
         cls.objetos[x][y] = obj
     
     @classmethod
-    def verObjetos(cls):
-        print("objetos")
-        for i in cls.objetos:
-            for obj in i:
-                if obj:
-                    print(f"{obj.descripcion}\n")
-        print("@\n")
+    def verTodo(cls):
+        print("Todo")
+        for obj in cls.objetos:
+            try:
+                print(obj)
+            except:
+                pass
 
     @classmethod
     def eliminarObjeto(cls, pos):
@@ -80,6 +80,9 @@ class Materia():
         self.color = color
         self.coord = coord
         self.size = size
+    
+    def __repr__(self):
+        return f"{self.id}"
 
     # surface, color, (posicion & dimension)
     def draw(self, ventana):

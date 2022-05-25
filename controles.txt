@@ -7,6 +7,15 @@ m: ver objetos
 wasd: movimiento
 
 
+ID
+
+0: espacio vacio
+X: agente
+M: Meta
+@: obstaculo
+
+
+
 Clases
 
 Todo:

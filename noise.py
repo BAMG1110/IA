@@ -9,6 +9,7 @@ if __name__ == "__main__":
 
     # objetos
     mabby = SerVivo(id=1, name="mabby", color=(255,0,255), coord=[256, 256])
+    Todo.agregarObjeto(mabby)
 
     ventana.fill((0,0,0))
 
@@ -28,7 +29,7 @@ if __name__ == "__main__":
                 try:
                     key = getattr(e, 'key')
                     if key == pygame.K_m:
-                        Todo.verObjetos()
+                        Todo.verTodo()
                     elif key == pygame.K_o:
                         mabby.defOrigen()
                     elif key == pygame.K_p:
