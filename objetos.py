@@ -14,6 +14,21 @@ def generarMatriz(t):
         m.append(x)
     return m
 
+def checkBorders(coord):
+    x = coord[0]
+    y = coord[1]
+    b = [True, True, True, True]
+    if x == (map_width) - obj_size:
+        b[0] = False
+    if y == 0:
+        b[1] = False
+    if x == 0:
+        b[2] = False
+    if y == (map_height) - obj_size:
+        b[3] = False
+
+    return b
+
 class Todo:
     objetos = generarMatriz(0)
     meta_actual = False
@@ -95,6 +110,30 @@ class Materia():
         print('coordenadas:\t', self.coord[0] // obj_size, self.coord[1] // obj_size)
         print('nombre:     \t', self.name)
 
+    def generarFeromonas(self):
+        print(f"generando")
+        p = [[0, obj_size], [-obj_size, obj_size], [-obj_size, 0], [-obj_size, -obj_size], [0, -obj_size], [obj_size, -obj_size], [obj_size, 0], [obj_size, obj_size]]
+        b = checkBorders(self.coord)
+        
+        print(type(p))
+        for i in p:
+            zipped_lists = zip(i, self.coord)
+            sum = [a + b for (a, b) in zipped_lists]
+            ñ = [sum[1]//obj_size, sum[0]//obj_size]
+            # y
+            if (sum[0] >= 0 and sum[0] <= map_width-obj_size) and (sum[1] >= 0 and sum[1] <= map_width-obj_size):
+                # print(ñ, Todo.objetos[sum[1]//obj_size][sum[0]//obj_size])
+
+                if not(Todo.objetos[sum[1]//obj_size][sum[0]//obj_size] != 0):
+                    temp = feromona(4, name = "feromona", color = (40, 0, 60), coord = sum, origen = self.coord, intensidad = 0.9)
+                    Todo.agregarObjeto(temp)
+            #     else:
+            #         # si hay otro objeto
+            #         # return 0
+            # else:
+            #     # si no hay nada
+            #     #
+
 class SerVivo(Materia):
     def __init__(self, id, name, color, coord, mapa = generarMatriz(0)):
         super().__init__(id, name, color, coord)
@@ -112,22 +151,6 @@ class SerVivo(Materia):
         print("mapa")
         for i in self.mapa:
             print(f"{i}")
-            
-    def checkBorders(self):
-        x = self.coord[0]
-        y = self.coord[1]
-        b = [True, True, True, True]
-        if x == (map_width) - obj_size:
-            b[0] = False
-        if y == 0:
-            b[1] = False
-        if x == 0:
-            b[2] = False
-        if y == (map_height) - obj_size:
-            b[3] = False
-
-        # print(f"x: {x}, y:{y}, coord: {self.coord}, b:{b}")
-        return b
 
     def movRandom(self):
         if self.moving:
@@ -178,7 +201,7 @@ class SerVivo(Materia):
 
     def accion(self, evento):
         Todo.eliminarObjeto(self.coord)
-        b = self.checkBorders()
+        b = checkBorders(self.coord)
         p, x, y = self.percibir()
         # print(f"bordes:     {b}")
         # print(f"percepcion: {p}")
@@ -280,3 +303,8 @@ class SerVivo(Materia):
             else:
                 self.moving = True
 
+class feromona(Materia):
+    def __init__(self, id, name, color, coord, origen, intensidad = 0):
+        super().__init__(id, name, color, coord)
+        self.origen = origen
+        self.intensidad = intensidad
