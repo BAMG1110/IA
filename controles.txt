@@ -10,9 +10,10 @@ wasd: movimiento
 ID
 
 0: espacio vacio
-X: agente
-M: Meta
-@: obstaculo
+1: agente
+2: obstaculo
+3: Meta
+4: feromona
 
 
 

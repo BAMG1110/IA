@@ -52,8 +52,8 @@ class Todo:
                 pass
             cls.meta_actual = pos
 
-        obj = Materia(3, "Meta", (0, 255, 0), cls.meta_actual)
-        cls.agregarObjeto(obj)
+        return Materia(3, "Meta", (0, 255, 0), cls.meta_actual)
+        
 
     @classmethod
     def draw(cls, todo):
@@ -102,7 +102,6 @@ class SerVivo(Materia):
         self.moving = False
         self.vel = obj_size
 
-    
     def defOrigen(self):
         x,y = pygame.mouse.get_pos()
         pos = [(x//obj_size)*obj_size, (y//obj_size)*obj_size]
@@ -132,7 +131,8 @@ class SerVivo(Materia):
 
     def movRandom(self):
         if self.moving:
-            lista = [pygame.K_d, pygame.K_e, pygame.K_w, pygame.K_q, pygame.K_a, pygame.K_z, pygame.K_x, pygame.K_c]
+            # lista = [pygame.K_d, pygame.K_e, pygame.K_w, pygame.K_q, pygame.K_a, pygame.K_z, pygame.K_x, pygame.K_c]
+            lista = [pygame.K_d, pygame.K_w, pygame.K_a, pygame.K_x]
             d = random.sample(lista, k=1)[-1]
             self.accion(d)
 
@@ -177,6 +177,7 @@ class SerVivo(Materia):
         return percepcion, coord_x, coord_y
 
     def accion(self, evento):
+        Todo.eliminarObjeto(self.coord)
         b = self.checkBorders()
         p, x, y = self.percibir()
         # print(f"bordes:     {b}")
@@ -278,3 +279,4 @@ class SerVivo(Materia):
                 self.moving = False
             else:
                 self.moving = True
+

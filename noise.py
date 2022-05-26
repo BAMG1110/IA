@@ -9,7 +9,7 @@ if __name__ == "__main__":
 
     # objetos
     mabby = SerVivo(id=1, name="mabby", color=(255,0,255), coord=[256, 256])
-    # Todo.agregarObjeto(mabby)
+    Todo.agregarObjeto(mabby)
 
     ventana.fill((0,0,0))
 
@@ -33,11 +33,10 @@ if __name__ == "__main__":
                     elif key == pygame.K_o:
                         mabby.defOrigen()
                     elif key == pygame.K_p:
-                        Todo.defMeta()
+                        meta = Todo.defMeta()
+                        Todo.agregarObjeto(meta)
                     else:
-                        # Todo.eliminarObjeto(mabby.coord)
                         mabby.accion(key)
-                        # Todo.agregarObjeto(mabby)
                 except:
                     pass
             
@@ -48,9 +47,8 @@ if __name__ == "__main__":
 
         # update
         ventana.fill((0,0,0))
-
         mabby.movRandom()
-        mabby.draw(ventana)
+        Todo.agregarObjeto(mabby)
         Todo.draw(ventana)
         
         pygame.display.update()
