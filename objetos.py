@@ -115,7 +115,6 @@ class SerVivo(Materia):
             print(f"{i}")
             
     def checkBorders(self):
-        # print(f"x: {x}, y:{y}, coord: {self.coord}, b:{b}")
         x = self.coord[0]
         y = self.coord[1]
         b = [True, True, True, True]
@@ -128,38 +127,61 @@ class SerVivo(Materia):
         if y == (map_height) - obj_size:
             b[3] = False
 
+        # print(f"x: {x}, y:{y}, coord: {self.coord}, b:{b}")
         return b
 
     def movRandom(self):
         if self.moving:
-            lista = [pygame.K_d, pygame.K_w, pygame.K_a, pygame.K_s]
+            lista = [pygame.K_d, pygame.K_e, pygame.K_w, pygame.K_q, pygame.K_a, pygame.K_z, pygame.K_x, pygame.K_c]
             d = random.sample(lista, k=1)[-1]
             self.accion(d)
 
     def percibir(self):
         coord_x = self.coord[0]
         coord_y = self.coord[1]
-        obj_0 = Todo.objetos[coord_y//obj_size][(coord_x+obj_size)//obj_size]
-        obj_1 = Todo.objetos[(coord_y-obj_size)//obj_size][(coord_x+obj_size)//obj_size]
-        obj_2 = Todo.objetos[(coord_y-obj_size)//obj_size][(coord_x)//obj_size]
-        obj_3 = Todo.objetos[(coord_y-obj_size)//obj_size][(coord_x-obj_size)//obj_size]
-        obj_4 = Todo.objetos[coord_y//obj_size][(coord_x-obj_size)//obj_size]
-        obj_5 = Todo.objetos[(coord_y+obj_size)//obj_size][(coord_x-obj_size)//obj_size]
-        obj_6 = Todo.objetos[(coord_y+obj_size)//obj_size][(coord_x)//obj_size]
-        obj_7 = Todo.objetos[(coord_y+obj_size)//obj_size][(coord_x+obj_size)//obj_size]
+        try:
+            obj_0 = Todo.objetos[coord_y//obj_size][(coord_x+obj_size)//obj_size]
+        except:
+            obj_0 = None
+        try:
+            obj_1 = Todo.objetos[(coord_y-obj_size)//obj_size][(coord_x+obj_size)//obj_size]
+        except:
+            obj_1 = None
+        try:
+            obj_2 = Todo.objetos[(coord_y-obj_size)//obj_size][(coord_x)//obj_size]
+        except:
+            obj_2 = None
+        try:
+            obj_3 = Todo.objetos[(coord_y-obj_size)//obj_size][(coord_x-obj_size)//obj_size]
+        except:
+            obj_3 = None
+        try:
+            obj_4 = Todo.objetos[coord_y//obj_size][(coord_x-obj_size)//obj_size]
+        except:
+            obj_4 = None
+        try:
+            obj_5 = Todo.objetos[(coord_y+obj_size)//obj_size][(coord_x-obj_size)//obj_size]
+        except:
+            obj_5 = None
+        try:
+            obj_6 = Todo.objetos[(coord_y+obj_size)//obj_size][(coord_x)//obj_size]
+        except:
+            obj_6 = None
+        try:
+            obj_7 = Todo.objetos[(coord_y+obj_size)//obj_size][(coord_x+obj_size)//obj_size]
+        except:
+            obj_7 = None
 
         percepcion = [obj_0, obj_1, obj_2, obj_3, obj_4, obj_5, obj_6, obj_7]
 
         return percepcion, coord_x, coord_y
 
     def accion(self, evento):
-        # print(f"evento: {evento}")
-        # print(f"x, y: {self.coord[0]}, {self.coord[1]} - {Todo.objetos[(self.coord[0]+obj_size)//32][self.coord[1]//32].descripcion}@\n")
         b = self.checkBorders()
         p, x, y = self.percibir()
-        print(f"percepcion: {p}")
-        print(f"bordes:     {b}")
-        
+        # print(f"bordes:     {b}")
+        # print(f"percepcion: {p}")
+
         # Este & Noreste
         if evento == pygame.K_d and b[0]:
             # print(f"0 - obj_E: {p[0]}")
