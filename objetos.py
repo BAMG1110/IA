@@ -110,29 +110,29 @@ class Materia():
         print('coordenadas:\t', self.coord[0] // obj_size, self.coord[1] // obj_size)
         print('nombre:     \t', self.name)
 
-    def generarFeromonas(self):
-        print(f"generando")
-        p = [[0, obj_size], [-obj_size, obj_size], [-obj_size, 0], [-obj_size, -obj_size], [0, -obj_size], [obj_size, -obj_size], [obj_size, 0], [obj_size, obj_size]]
-        b = checkBorders(self.coord)
+    def generarFeromonas(self, coord, inten):
+        p = [[0, obj_size], [-obj_size, 0], [0, -obj_size], [obj_size, 0]]
+        b = checkBorders(coord)
+        color = tuple([100-inten, 0, 120-inten])
         
-        print(type(p))
         for i in p:
-            zipped_lists = zip(i, self.coord)
+            zipped_lists = zip(i, coord)
             sum = [a + b for (a, b) in zipped_lists]
             ñ = [sum[1]//obj_size, sum[0]//obj_size]
-            # y
+
             if (sum[0] >= 0 and sum[0] <= map_width-obj_size) and (sum[1] >= 0 and sum[1] <= map_width-obj_size):
                 # print(ñ, Todo.objetos[sum[1]//obj_size][sum[0]//obj_size])
 
                 if not(Todo.objetos[sum[1]//obj_size][sum[0]//obj_size] != 0):
-                    temp = feromona(4, name = "feromona", color = (40, 0, 60), coord = sum, origen = self.coord, intensidad = 0.9)
-                    Todo.agregarObjeto(temp)
-            #     else:
-            #         # si hay otro objeto
-            #         # return 0
-            # else:
-            #     # si no hay nada
-            #     #
+                    if inten < 10:
+                        temp = feromona(4, name = "feromona", color = color, coord = sum, origen = coord, intensidad = inten)
+                        Todo.agregarObjeto(temp)
+                        self.generarFeromonas(sum, inten+1)
+                else:
+                    # si hay otro objeto
+                    pass
+            else:
+                pass
 
 class SerVivo(Materia):
     def __init__(self, id, name, color, coord, mapa = generarMatriz(0)):
@@ -142,6 +142,7 @@ class SerVivo(Materia):
         self.vel = obj_size
 
     def defOrigen(self):
+        Todo.eliminarObjeto(self.coord)
         x,y = pygame.mouse.get_pos()
         pos = [(x//obj_size)*obj_size, (y//obj_size)*obj_size]
         self.coord = pos
