@@ -136,54 +136,110 @@ class SerVivo(Materia):
             d = random.sample(lista, k=1)[-1]
             self.accion(d)
 
+    def percibir(self):
+        coord_x = self.coord[0]
+        coord_y = self.coord[1]
+        obj_0 = Todo.objetos[coord_y//obj_size][(coord_x+obj_size)//obj_size]
+        obj_1 = Todo.objetos[(coord_y-obj_size)//obj_size][(coord_x+obj_size)//obj_size]
+        obj_2 = Todo.objetos[(coord_y-obj_size)//obj_size][(coord_x)//obj_size]
+        obj_3 = Todo.objetos[(coord_y-obj_size)//obj_size][(coord_x-obj_size)//obj_size]
+        obj_4 = Todo.objetos[coord_y//obj_size][(coord_x-obj_size)//obj_size]
+        obj_5 = Todo.objetos[(coord_y+obj_size)//obj_size][(coord_x-obj_size)//obj_size]
+        obj_6 = Todo.objetos[(coord_y+obj_size)//obj_size][(coord_x)//obj_size]
+        obj_7 = Todo.objetos[(coord_y+obj_size)//obj_size][(coord_x+obj_size)//obj_size]
+
+        percepcion = [obj_0, obj_1, obj_2, obj_3, obj_4, obj_5, obj_6, obj_7]
+
+        return percepcion, coord_x, coord_y
+
     def accion(self, evento):
         # print(f"evento: {evento}")
         # print(f"x, y: {self.coord[0]}, {self.coord[1]} - {Todo.objetos[(self.coord[0]+obj_size)//32][self.coord[1]//32].descripcion}@\n")
         b = self.checkBorders()
-        coord_x = self.coord[0]
-        coord_y = self.coord[1]
-
-        # meta alcanzada
-        # wasd
+        p, x, y = self.percibir()
+        print(f"percepcion: {p}")
+        print(f"bordes:     {b}")
+        
+        # Este & Noreste
         if evento == pygame.K_d and b[0]:
-            obj_der = Todo.objetos[coord_y//obj_size][(coord_x+obj_size)//obj_size]
-            print(f"obj_der: {obj_der}")
-            if obj_der == 0:
+            # print(f"0 - obj_E: {p[0]}")
+            if p[0] == 0:
                 self.coord[0] += self.vel
-                self.mapa[coord_y//obj_size][coord_x//obj_size] += 1
-            elif obj_der.id == 3:
+                self.mapa[y//obj_size][x//obj_size] += 1
+            elif p[0].id == 3:
                 self.coord[0] += self.vel
+                self.moving = False
+
+        if evento == pygame.K_e and b[0] and b[1]:
+            # print(f"1 - obj_NE: {p[1]}")
+            if p[1] == 0:
+                self.coord[0] += self.vel
+                self.coord[1] -= self.vel
+                self.mapa[y//obj_size][x//obj_size] += 1
+            elif p[1].id == 3:
+                self.coord[0] += self.vel
+                self.coord[1] -= self.vel
                 self.moving = False
         
+        # Norte & Noroeste
         if evento == pygame.K_w and b[1]:
-            obj_arriba = Todo.objetos[(coord_y-obj_size)//obj_size][(coord_x)//obj_size]
-            print(f"obj_arriba: {obj_arriba}")
-            if not(obj_arriba):
+            # print(f"2 - obj_N: {p[2]}")
+            if p[2] == 0:
                 self.coord[1] -= self.vel
-                self.mapa[coord_y//obj_size][coord_x//obj_size] += 1
-            elif obj_arriba.id == 3:
+                self.mapa[y//obj_size][x//obj_size] += 1
+            elif p[2].id == 3:
                 self.coord[1] -= self.vel
                 self.moving = False
 
+        if evento == pygame.K_q and b[1] and b[2]:
+            # print(f"3 - obj_NO: {p[3]}")
+            if p[3] == 0:
+                self.coord[0] -= self.vel
+                self.coord[1] -= self.vel
+                self.mapa[y//obj_size][x//obj_size] += 1
+            elif p[3].id == 3:
+                self.coord[0] -= self.vel
+                self.coord[1] -= self.vel
+                self.moving = False
 
+        # Oeste & Suroeste
         if evento == pygame.K_a and b[2]:
-            obj_izq = Todo.objetos[coord_y//obj_size][(coord_x-obj_size)//obj_size]
-            print(f"obj_izq: {obj_izq}")
-            if not(obj_izq):
+            # print(f"4 - obj_O: {p[4]}")
+            if p[4] == 0:
                 self.coord[0] -= self.vel
-                self.mapa[coord_y//obj_size][coord_x//obj_size] += 1
-            elif obj_izq.id == 3:
+                self.mapa[y//obj_size][x//obj_size] += 1
+            elif p[4].id == 3:
                 self.coord[0] -= self.vel
                 self.moving = False
-
-        if evento == pygame.K_s and b[3]:
-            obj_abajo = Todo.objetos[(coord_y+obj_size)//obj_size][(coord_x)//obj_size]
-            print(f"obj_abajo: {obj_abajo}")
-            if not(obj_abajo):
+        
+        if evento == pygame.K_z and b[2] and b[3]:
+            # print(f"5 - obj_SO: {p[5]}")
+            if p[5] == 0:
+                self.coord[0] -= self.vel
                 self.coord[1] += self.vel
-                self.mapa[coord_y//obj_size][coord_x//obj_size] += 1
-            elif obj_abajo.id == 3:
+                self.mapa[y//obj_size][x//obj_size] += 1
+            elif p[5].id == 3:
+                self.coord[0] -= self.vel
+                self.moving = False
+        
+        # Sur & Sureste
+        if evento == pygame.K_x and b[3]:
+            # print(f"6 - obj_S: {p[6]}")
+            if p[6] == 0:
                 self.coord[1] += self.vel
+                self.mapa[y//obj_size][x//obj_size] += 1
+            elif p[6].id == 3:
+                self.coord[0] -= self.vel
+                self.moving = False
+        
+        if evento == pygame.K_c and b[3] and b[0]:
+            # print(f"7 - obj_SO: {p[7]}")
+            if p[7] == 0:
+                self.coord[0] += self.vel
+                self.coord[1] += self.vel
+                self.mapa[y//obj_size][x//obj_size] += 1
+            elif p[7].id == 3:
+                self.coord[0] -= self.vel
                 self.moving = False
 
         # descripcion
@@ -200,4 +256,3 @@ class SerVivo(Materia):
                 self.moving = False
             else:
                 self.moving = True
-
