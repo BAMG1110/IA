@@ -1,5 +1,6 @@
 import pygame
 from objetos import *
+
 # funcionamiento del entorno
 
 if __name__ == "__main__":

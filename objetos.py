@@ -1,9 +1,11 @@
-import pygame
+import pygame, pygame.font
 import random
 
 map_width = 512
 map_height = 512
 obj_size = 32
+
+pygame.font.init()
 
 def generarMatriz(t):
     m = []
@@ -81,9 +83,9 @@ class Todo:
     def drawGrid(cls, todo):
         fw = map_width // obj_size
         fh = map_height // obj_size
-        x = 0  # Keeps track of the current x
-        y = 0  # Keeps track of the current y
-        for l in range(fw):  # We will draw one vertical and one horizontal line each loop
+        x = 0
+        y = 0
+        for l in range(fw):
             x = x + obj_size
             y = y + obj_size
 
@@ -137,15 +139,16 @@ class Materia():
                 # print(ñ, Todo.objetos[sum[1]//obj_size][sum[0]//obj_size])
 
                 if not(Todo.objetos[sum[1]//obj_size][sum[0]//obj_size] != 0):
-                    if inten < 10:
                         temp = feromona(4, name = "feromona", color = color, coord = sum, origen = coord, intensidad = inten)
                         Todo.agregarObjeto(temp)
-                        self.generarFeromonas(sum, inten+1)
                 else:
                     # si hay otro objeto
                     pass
             else:
                 pass
+
+            if inten < 30:
+                self.generarFeromonas(sum, inten+10)
 
 class SerVivo(Materia):
     def __init__(self, id, name, color, coord, mapa = generarMatriz(0)):
@@ -322,3 +325,13 @@ class feromona(Materia):
         super().__init__(id, name, color, coord)
         self.origen = origen
         self.intensidad = intensidad
+
+    def draw(self, ventana):
+        Font=pygame.font.SysFont('timesnewroman',  15)
+        l=Font.render(str(self.intensidad), False, (254,254,254), self.color)
+        x = self.coord[0] + (obj_size / 4)
+        y = self.coord[1] + (obj_size / 4)
+
+        size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
+        pygame.draw.rect(ventana, self.color, size)
+        ventana.blit(l, (x, y))
