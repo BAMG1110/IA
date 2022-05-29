@@ -48,6 +48,7 @@ if __name__ == "__main__":
 
         # update
         ventana.fill((0,0,0))
+        Todo.drawGrid(ventana)
         mabby.movRandom()
         Todo.agregarObjeto(mabby)
         Todo.draw(ventana)

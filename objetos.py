@@ -78,6 +78,19 @@ class Todo:
                     obj_j.draw(todo)
 
     @classmethod
+    def drawGrid(cls, todo):
+        fw = map_width // obj_size
+        fh = map_height // obj_size
+        x = 0  # Keeps track of the current x
+        y = 0  # Keeps track of the current y
+        for l in range(fw):  # We will draw one vertical and one horizontal line each loop
+            x = x + obj_size
+            y = y + obj_size
+
+            pygame.draw.line(todo, (55,55,55), (x, 0), (x, map_width))
+            pygame.draw.line(todo, (55,55,55), (0, y), (map_height, y))
+
+    @classmethod
     def mouse(cls):
         x,y = pygame.mouse.get_pos()
         pos = [(x//obj_size)*obj_size, (y//obj_size)*obj_size]
