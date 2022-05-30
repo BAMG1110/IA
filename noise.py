@@ -9,7 +9,7 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
 
     # objetos
-    mabby = SerVivo(id=1, name="mabby", color=(255,0,255), coord=[256, 256])
+    mabby = SerVivo(id=1, name="mabby", color=(255,0,255), coord=[0, 0])
     Todo.agregarObjeto(mabby)
 
     ventana.fill((0,0,0))
@@ -36,7 +36,7 @@ if __name__ == "__main__":
                     elif key == pygame.K_p:
                         meta = Todo.defMeta()
                         Todo.agregarObjeto(meta)
-                        meta.generarFeromonas(3)
+                        meta.generarFeromonas(4)
                     else:
                         mabby.accion(key)
                 except:

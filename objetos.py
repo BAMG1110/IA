@@ -65,6 +65,12 @@ class Todo:
         if cls.meta_actual != pos:
             try:
                 cls.eliminarObjeto(cls.meta_actual)
+                for obj in cls.objetos:
+                    for ob in obj:
+                        try:
+                            cls.eliminarObjeto(ob.coord)
+                        except:
+                            pass
             except:
                 pass
             cls.meta_actual = pos
@@ -139,23 +145,16 @@ class Materia():
             # obtener adyacentes validos
             if (sum[0] >= 0 and sum[0] <= map_width-obj_size) and (sum[1] >= 0 and sum[1] <= map_width-obj_size):
                 if not(Todo.objetos[sum[1]//obj_size][sum[0]//obj_size] != 0):
-                    # print(f"disponible: {sum[0]//obj_size}, {sum[1]//obj_size}")
-                    # calcular intensidad segun el origen
-                    intensidad = math.sqrt(((sum[0] - self.coord[0])**2) + ((sum[1] - self.coord[1])**2)) // obj_size
-                    # intensidad = rango - intensidad
+                    # calcular intensidad segun el origen, Manhattan distance
+                    intensidad = (abs(sum[0] - self.coord[0]) + abs(sum[1] - self.coord[1])) // obj_size
 
                     # agregar al mapa & guardar para analizar cada cuadro adyacente
                     z.append(sum)
                     temp = feromona(4, name = "feromona", color = color, coord = sum, origen = coord, intensidad = intensidad)
                     Todo.agregarObjeto(temp)
                     
-                    if temp.intensidad < 3:
-                        print(temp.intensidad, sum, rango)
+                    if temp.intensidad < rango:
                         self.generarFeromonas(rango, sum)
-            #     else:
-            #         print(f"hay otro objeto: {sum[0]//obj_size}, {sum[1]//obj_size}")
-            # else:
-            #     print(f"fuera del mapa: {sum[0]//obj_size}, {sum[1]//obj_size}")
 
 class SerVivo(Materia):
     def __init__(self, id, name, color, coord, mapa = generarMatriz(0)):
