@@ -127,28 +127,27 @@ class Materia():
 
     def generarFeromonas(self, coord, inten):
         p = [[0, obj_size], [-obj_size, 0], [0, -obj_size], [obj_size, 0]]
-        b = checkBorders(coord)
+        z = []
         color = tuple([100-inten, 0, 120-inten])
         
         for i in p:
             zipped_lists = zip(i, coord)
             sum = [a + b for (a, b) in zipped_lists]
             ñ = [sum[1]//obj_size, sum[0]//obj_size]
-
-            if (sum[0] >= 0 and sum[0] <= map_width-obj_size) and (sum[1] >= 0 and sum[1] <= map_width-obj_size):
-                # print(ñ, Todo.objetos[sum[1]//obj_size][sum[0]//obj_size])
-
-                if not(Todo.objetos[sum[1]//obj_size][sum[0]//obj_size] != 0):
-                        temp = feromona(4, name = "feromona", color = color, coord = sum, origen = coord, intensidad = inten)
-                        Todo.agregarObjeto(temp)
+            z.append(sum)
+        
+        for k in z:
+            if (k[0] >= 0 and k[0] <= map_width-obj_size) and (k[1] >= 0 and k[1] <= map_width-obj_size):
+                if not(Todo.objetos[k[1]//obj_size][k[0]//obj_size] != 0):
+                    print(f"disponible: {k[0]//obj_size}, {k[1]//obj_size}")
+                    temp = feromona(4, name = "feromona", color = color, coord = k, origen = coord, intensidad = inten)
+                    Todo.agregarObjeto(temp)
+                    if inten < 30:
+                        self.generarFeromonas(k, inten+10)
                 else:
-                    # si hay otro objeto
-                    pass
+                    print(f"hay otro objeto: {k[0]//obj_size}, {k[1]//obj_size}")
             else:
-                pass
-
-            if inten < 30:
-                self.generarFeromonas(sum, inten+10)
+                print(f"fuera del mapa: {k[0]//obj_size}, {k[1]//obj_size}")
 
 class SerVivo(Materia):
     def __init__(self, id, name, color, coord, mapa = generarMatriz(0)):
