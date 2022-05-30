@@ -68,7 +68,8 @@ class Todo:
                 for obj in cls.objetos:
                     for ob in obj:
                         try:
-                            cls.eliminarObjeto(ob.coord)
+                            if ob.id == 4:
+                                cls.eliminarObjeto(ob.coord)
                         except:
                             pass
             except:
@@ -131,10 +132,9 @@ class Materia():
         print('coordenadas:\t', self.coord[0] // obj_size, self.coord[1] // obj_size)
         print('nombre:     \t', self.name)
 
-    def generarFeromonas(self, rango, coord = None):
+    def generarRastro(self, rango, coord = None):
         p = [[0, obj_size], [-obj_size, 0], [0, -obj_size], [obj_size, 0]]
         z = []
-        color = tuple([100, 0, 120])
         if not(coord):
             coord = self.coord
 
@@ -148,13 +148,18 @@ class Materia():
                     # calcular intensidad segun el origen, Manhattan distance
                     intensidad = (abs(sum[0] - self.coord[0]) + abs(sum[1] - self.coord[1])) // obj_size
 
+                    # color
+                    color = tuple([0, 120-(intensidad*10), 0])
+                    
                     # agregar al mapa & guardar para analizar cada cuadro adyacente
                     z.append(sum)
                     temp = feromona(4, name = "feromona", color = color, coord = sum, origen = coord, intensidad = intensidad)
                     Todo.agregarObjeto(temp)
-                    
-                    if temp.intensidad < rango:
-                        self.generarFeromonas(rango, sum)
+        
+        # para cada cuadro adyacente, generar rastro
+        for k in z:
+            if temp.intensidad < rango:
+                self.generarRastro(rango, k)
 
 class SerVivo(Materia):
     def __init__(self, id, name, color, coord, mapa = generarMatriz(0)):
