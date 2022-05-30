@@ -36,7 +36,7 @@ if __name__ == "__main__":
                     elif key == pygame.K_p:
                         meta = Todo.defMeta()
                         Todo.agregarObjeto(meta)
-                        meta.generarFeromonas(meta.coord, 0)
+                        meta.generarFeromonas(3)
                     else:
                         mabby.accion(key)
                 except:

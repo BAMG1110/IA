@@ -1,5 +1,5 @@
 import pygame, pygame.font
-import random
+import random, math
 
 map_width = 512
 map_height = 512
@@ -125,29 +125,37 @@ class Materia():
         print('coordenadas:\t', self.coord[0] // obj_size, self.coord[1] // obj_size)
         print('nombre:     \t', self.name)
 
-    def generarFeromonas(self, coord, inten):
+    def generarFeromonas(self, rango, coord = None):
         p = [[0, obj_size], [-obj_size, 0], [0, -obj_size], [obj_size, 0]]
         z = []
-        color = tuple([100-inten, 0, 120-inten])
-        
+        color = tuple([100, 0, 120])
+        if not(coord):
+            coord = self.coord
+
         for i in p:
             zipped_lists = zip(i, coord)
             sum = [a + b for (a, b) in zipped_lists]
-            ñ = [sum[1]//obj_size, sum[0]//obj_size]
-            z.append(sum)
-        
-        for k in z:
-            if (k[0] >= 0 and k[0] <= map_width-obj_size) and (k[1] >= 0 and k[1] <= map_width-obj_size):
-                if not(Todo.objetos[k[1]//obj_size][k[0]//obj_size] != 0):
-                    print(f"disponible: {k[0]//obj_size}, {k[1]//obj_size}")
-                    temp = feromona(4, name = "feromona", color = color, coord = k, origen = coord, intensidad = inten)
+
+            # obtener adyacentes validos
+            if (sum[0] >= 0 and sum[0] <= map_width-obj_size) and (sum[1] >= 0 and sum[1] <= map_width-obj_size):
+                if not(Todo.objetos[sum[1]//obj_size][sum[0]//obj_size] != 0):
+                    # print(f"disponible: {sum[0]//obj_size}, {sum[1]//obj_size}")
+                    # calcular intensidad segun el origen
+                    intensidad = math.sqrt(((sum[0] - self.coord[0])**2) + ((sum[1] - self.coord[1])**2)) // obj_size
+                    # intensidad = rango - intensidad
+
+                    # agregar al mapa & guardar para analizar cada cuadro adyacente
+                    z.append(sum)
+                    temp = feromona(4, name = "feromona", color = color, coord = sum, origen = coord, intensidad = intensidad)
                     Todo.agregarObjeto(temp)
-                    if inten < 30:
-                        self.generarFeromonas(k, inten+10)
-                else:
-                    print(f"hay otro objeto: {k[0]//obj_size}, {k[1]//obj_size}")
-            else:
-                print(f"fuera del mapa: {k[0]//obj_size}, {k[1]//obj_size}")
+                    
+                    if temp.intensidad < 3:
+                        print(temp.intensidad, sum, rango)
+                        self.generarFeromonas(rango, sum)
+            #     else:
+            #         print(f"hay otro objeto: {sum[0]//obj_size}, {sum[1]//obj_size}")
+            # else:
+            #     print(f"fuera del mapa: {sum[0]//obj_size}, {sum[1]//obj_size}")
 
 class SerVivo(Materia):
     def __init__(self, id, name, color, coord, mapa = generarMatriz(0)):
