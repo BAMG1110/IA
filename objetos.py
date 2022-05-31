@@ -133,7 +133,7 @@ class Materia():
         print('nombre:     \t', self.name)
 
     def generarRastro(self, rango, coord = None):
-        p = [[0, obj_size], [-obj_size, 0], [0, -obj_size], [obj_size, 0]]
+        p = [[obj_size, 0], [0, -obj_size], [-obj_size, 0], [0, obj_size]]
         z = []
         if not(coord):
             coord = self.coord
@@ -154,12 +154,17 @@ class Materia():
                     # agregar al mapa & guardar para analizar cada cuadro adyacente
                     z.append(sum)
                     temp = feromona(4, name = "feromona", color = color, coord = sum, origen = coord, intensidad = intensidad)
-                    Todo.agregarObjeto(temp)
+                    if temp.intensidad < rango:
+                        Todo.agregarObjeto(temp)
         
         # para cada cuadro adyacente, generar rastro
         for k in z:
-            if temp.intensidad < rango:
-                self.generarRastro(rango, k)
+            try:
+                if Todo.objetos[k[1]//obj_size][k[0]//obj_size].intensidad <= rango:
+                    print(f"coord: {k[0]//obj_size}, {k[1]//obj_size} - intensidad: {Todo.objetos[k[1]//obj_size][k[0]//obj_size].intensidad}")
+                    self.generarRastro(rango, k)
+            except:
+                pass
 
 class SerVivo(Materia):
     def __init__(self, id, name, color, coord, mapa = generarMatriz(0)):
