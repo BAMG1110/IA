@@ -1,8 +1,8 @@
 import pygame, pygame.font
 import random, math
 
-map_width = 512
-map_height = 512
+map_width = 640
+map_height = 640
 obj_size = 32
 
 pygame.font.init()
@@ -151,8 +151,9 @@ class Materia():
 
                     # print(f"temp: {intensidad} rango: {rango} - {intensidad <= rango}")
                     if intensidad <= rango:
-                        c = intensidad*10 if intensidad*10 <= 120 else 120
-                        color = tuple([0, 120-(c), 0])
+                        # c = intensidad*10 if intensidad*10 <= 120 else 120
+                        c = (120/rango)*intensidad
+                        color = tuple([0, 130-(c), 0])
                         temp = feromona(4, name = "feromona", color = color, coord = sum, origen = coord, intensidad = intensidad)
                         Todo.agregarObjeto(temp)
                         self.generarRastro(rango, sum)
@@ -334,12 +335,12 @@ class feromona(Materia):
         self.origen = origen
         self.intensidad = intensidad
 
-    def draw(self, ventana):
-        Font=pygame.font.SysFont('timesnewroman',  15)
-        l=Font.render(str(self.intensidad), False, (254,254,254), self.color)
-        x = self.coord[0] + (obj_size / 4)
-        y = self.coord[1] + (obj_size / 4)
+    # def draw(self, ventana):
+    #     Font=pygame.font.SysFont('timesnewroman',  15)
+    #     l=Font.render(str(self.intensidad), False, (254,254,254), self.color)
+    #     x = self.coord[0] + (obj_size / 4)
+    #     y = self.coord[1] + (obj_size / 4)
 
-        size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
-        pygame.draw.rect(ventana, self.color, size)
-        ventana.blit(l, (x, y))
+    #     size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
+    #     pygame.draw.rect(ventana, self.color, size)
+    #     ventana.blit(l, (x, y))

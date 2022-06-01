@@ -16,8 +16,8 @@ if __name__ == "__main__":
 
     while run:
         # time delay _& fps
-        pygame.time.delay(60)
-        clock.tick(10)
+        pygame.time.delay(30)
+        clock.tick(60)
 
         # eventos
         for e in pygame.event.get():
@@ -36,7 +36,7 @@ if __name__ == "__main__":
                     elif key == pygame.K_p:
                         meta = Todo.defMeta()
                         Todo.agregarObjeto(meta)
-                        meta.generarRastro(16)
+                        meta.generarRastro(6)
                     else:
                         mabby.accion(key)
                 except:
@@ -49,10 +49,10 @@ if __name__ == "__main__":
 
         # update
         ventana.fill((0,0,0))
-        Todo.drawGrid(ventana)
         mabby.movRandom()
         Todo.agregarObjeto(mabby)
         Todo.draw(ventana)
+        Todo.drawGrid(ventana)
         
         pygame.display.update()
     
