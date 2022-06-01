@@ -132,6 +132,7 @@ class Materia():
         print('coordenadas:\t', self.coord[0] // obj_size, self.coord[1] // obj_size)
         print('nombre:     \t', self.name)
 
+    # print(f"coord: {sum[0]//obj_size}, {sum[1]//obj_size} - intensidad: {Todo.objetos[sum[1]//obj_size][sum[0]//obj_size].intensidad}")
     def generarRastro(self, rango, coord = None):
         p = [[obj_size, 0], [0, -obj_size], [-obj_size, 0], [0, obj_size]]
         z = []
@@ -148,23 +149,14 @@ class Materia():
                     # calcular intensidad segun el origen, Manhattan distance
                     intensidad = (abs(sum[0] - self.coord[0]) + abs(sum[1] - self.coord[1])) // obj_size
 
-                    # color
-                    color = tuple([0, 120-(intensidad*10), 0])
-                    
-                    # agregar al mapa & guardar para analizar cada cuadro adyacente
-                    z.append(sum)
-                    temp = feromona(4, name = "feromona", color = color, coord = sum, origen = coord, intensidad = intensidad)
-                    if temp.intensidad < rango:
+                    # print(f"temp: {intensidad} rango: {rango} - {intensidad <= rango}")
+                    if intensidad <= rango:
+                        c = intensidad*10 if intensidad*10 <= 120 else 120
+                        color = tuple([0, 120-(c), 0])
+                        temp = feromona(4, name = "feromona", color = color, coord = sum, origen = coord, intensidad = intensidad)
                         Todo.agregarObjeto(temp)
-        
-        # para cada cuadro adyacente, generar rastro
-        for k in z:
-            try:
-                if Todo.objetos[k[1]//obj_size][k[0]//obj_size].intensidad <= rango:
-                    print(f"coord: {k[0]//obj_size}, {k[1]//obj_size} - intensidad: {Todo.objetos[k[1]//obj_size][k[0]//obj_size].intensidad}")
-                    self.generarRastro(rango, k)
-            except:
-                pass
+                        self.generarRastro(rango, sum)
+                    
 
 class SerVivo(Materia):
     def __init__(self, id, name, color, coord, mapa = generarMatriz(0)):
@@ -237,12 +229,12 @@ class SerVivo(Materia):
         b = checkBorders(self.coord)
         p, x, y = self.percibir()
         # print(f"bordes:     {b}")
-        # print(f"percepcion: {p}")
 
         # Este & Noreste
         if evento == pygame.K_d and b[0]:
+            print(f"percepcion: {p[0]}, {p[0]}")
             # print(f"0 - obj_E: {p[0]}")
-            if p[0] == 0:
+            if p[0] == 0 or p[0].id == 4:
                 self.coord[0] += self.vel
                 self.mapa[y//obj_size][x//obj_size] += 1
             elif p[0].id == 3:
@@ -251,7 +243,7 @@ class SerVivo(Materia):
 
         if evento == pygame.K_e and b[0] and b[1]:
             # print(f"1 - obj_NE: {p[1]}")
-            if p[1] == 0:
+            if p[1] == 0 or p[1].id == 4:
                 self.coord[0] += self.vel
                 self.coord[1] -= self.vel
                 self.mapa[y//obj_size][x//obj_size] += 1
@@ -263,7 +255,7 @@ class SerVivo(Materia):
         # Norte & Noroeste
         if evento == pygame.K_w and b[1]:
             # print(f"2 - obj_N: {p[2]}")
-            if p[2] == 0:
+            if p[2] == 0 or p[2].id == 4:
                 self.coord[1] -= self.vel
                 self.mapa[y//obj_size][x//obj_size] += 1
             elif p[2].id == 3:
@@ -272,7 +264,7 @@ class SerVivo(Materia):
 
         if evento == pygame.K_q and b[1] and b[2]:
             # print(f"3 - obj_NO: {p[3]}")
-            if p[3] == 0:
+            if p[3] == 0 or p[3].id == 4:
                 self.coord[0] -= self.vel
                 self.coord[1] -= self.vel
                 self.mapa[y//obj_size][x//obj_size] += 1
@@ -284,7 +276,7 @@ class SerVivo(Materia):
         # Oeste & Suroeste
         if evento == pygame.K_a and b[2]:
             # print(f"4 - obj_O: {p[4]}")
-            if p[4] == 0:
+            if p[4] == 0 or p[4].id == 4:
                 self.coord[0] -= self.vel
                 self.mapa[y//obj_size][x//obj_size] += 1
             elif p[4].id == 3:
@@ -293,7 +285,7 @@ class SerVivo(Materia):
         
         if evento == pygame.K_z and b[2] and b[3]:
             # print(f"5 - obj_SO: {p[5]}")
-            if p[5] == 0:
+            if p[5] == 0 or p[5].id == 4:
                 self.coord[0] -= self.vel
                 self.coord[1] += self.vel
                 self.mapa[y//obj_size][x//obj_size] += 1
@@ -304,7 +296,7 @@ class SerVivo(Materia):
         # Sur & Sureste
         if evento == pygame.K_x and b[3]:
             # print(f"6 - obj_S: {p[6]}")
-            if p[6] == 0:
+            if p[6] == 0 or p[6].id == 4:
                 self.coord[1] += self.vel
                 self.mapa[y//obj_size][x//obj_size] += 1
             elif p[6].id == 3:
@@ -313,7 +305,7 @@ class SerVivo(Materia):
         
         if evento == pygame.K_c and b[3] and b[0]:
             # print(f"7 - obj_SO: {p[7]}")
-            if p[7] == 0:
+            if p[7] == 0 or p[7].id == 4:
                 self.coord[0] += self.vel
                 self.coord[1] += self.vel
                 self.mapa[y//obj_size][x//obj_size] += 1
