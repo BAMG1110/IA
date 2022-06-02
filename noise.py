@@ -51,6 +51,8 @@ if __name__ == "__main__":
 
         Todo.draw(ventana)
         mabby.draw(ventana)
+        if mabby.mostrarMapa:
+            mabby.verMapa(ventana)
 
         Todo.drawGrid(ventana)
         

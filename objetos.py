@@ -167,6 +167,7 @@ class SerVivo(Materia):
     def __init__(self, id, name, color, coord, mapa = generarMatriz(0)):
         super().__init__(id, name, color, coord)
         self.mapa = mapa
+        self.mostrarMapa = False
         self.buscando = False
         self.vel = obj_size
 
@@ -176,18 +177,18 @@ class SerVivo(Materia):
         pos = [(x//obj_size)*obj_size, (y//obj_size)*obj_size]
         self.coord = pos
 
-    @property
-    def verMapa(self):
-        print("mapa")
-        for i in self.mapa:
-            print(f"{i}")
+    def verMapa(self, ventana):
+        for i in range(len(self.mapa)):
+            for j in range(len(self.mapa[0])):
+                Font=pygame.font.SysFont('timesnewroman',  15)
+                l=Font.render(str(self.mapa[j][i]), False, (254,254,254), (0,0,0))
+                ventana.blit(l, (i*obj_size + (obj_size / 4), j*obj_size + (obj_size / 4)))
 
     # def buscarComida(self, ):
     #     print(self.mapa[1][0])
     #     if self.buscando:
     #         # lista = [pygame.K_d, pygame.K_w, pygame.K_a, pygame.K_x]
     #         # d = random.sample(lista, k=1)[-1]
-
 
     def percibir(self):
         x = self.coord[0]
@@ -293,7 +294,11 @@ class SerVivo(Materia):
         
         # mapa
         if evento == pygame.K_u:
-            self.verMapa
+            if self.mostrarMapa:
+                self.mostrarMapa = False
+            else:
+                self.mostrarMapa = True
+
         
         # mover random
         if evento == pygame.K_SPACE:
