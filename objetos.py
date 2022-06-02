@@ -182,12 +182,12 @@ class SerVivo(Materia):
         for i in self.mapa:
             print(f"{i}")
 
-    def buscarComida(self):
-        if self.buscando:
-            # lista = [pygame.K_d, pygame.K_e, pygame.K_w, pygame.K_q, pygame.K_a, pygame.K_z, pygame.K_x, pygame.K_c]
-            lista = [pygame.K_d, pygame.K_w, pygame.K_a, pygame.K_x]
-            d = random.sample(lista, k=1)[-1]
-            self.accion(d)
+    # def buscarComida(self, ):
+    #     print(self.mapa[1][0])
+    #     if self.buscando:
+    #         # lista = [pygame.K_d, pygame.K_w, pygame.K_a, pygame.K_x]
+    #         # d = random.sample(lista, k=1)[-1]
+
 
     def percibir(self):
         x = self.coord[0]
@@ -207,6 +207,8 @@ class SerVivo(Materia):
                     percibido["E"] = [E, True]
                 else:
                     percibido["E"] = [E, False]
+                    # registrar objeto
+                    self.mapa[y//obj_size][(x+obj_size)//obj_size] = -1
             else:
                 percibido["E"] = [E, True]
         else:
@@ -218,6 +220,8 @@ class SerVivo(Materia):
                     percibido["N"] = [N, True]
                 else:
                     percibido["N"] = [N, False]
+                    # registrar objeto
+                    self.mapa[(y-obj_size)//obj_size][x//obj_size] = -1
             else:
                 percibido["N"] = [N, True]
         else:
@@ -229,6 +233,8 @@ class SerVivo(Materia):
                     percibido["O"] = [O,True]
                 else:
                     percibido["O"] = [E,False]
+                    # registrar objeto
+                    self.mapa[y//obj_size][(x-obj_size)//obj_size] = -1
             else:
                 percibido["O"] = [O, True]
         else:
@@ -240,27 +246,34 @@ class SerVivo(Materia):
                     percibido["S"] = [S,True]
                 else:
                     percibido["S"] = [S,False]
+                    # registrar objeto
+                    self.mapa[(y+obj_size)//obj_size][x//obj_size] = -1
             else:
                 percibido["S"] = [S, True]
         else:
             percibido["S"] = ["NO EXISTE", False]
 
-
-        # print(percibido)
         return percibido
 
     def mover(self, direccion):
         print(direccion)
         if direccion == "E":
             self.coord[0] += self.vel
+            # lugar visitado, subir contador en el mapa
+            self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
         if direccion == "N":
             self.coord[1] -= self.vel
+            # lugar visitado, subir contador en el mapa
+            self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
         if direccion == "O":
             self.coord[0] -= self.vel
+            # lugar visitado, subir contador en el mapa
+            self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
         if direccion == "S":
             self.coord[1] += self.vel
+            # lugar visitado, subir contador en el mapa
+            self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
         
-
     def accion(self, evento):
         print("@: ", evento)
         p = self.percibir()

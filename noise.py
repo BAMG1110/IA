@@ -51,6 +51,7 @@ if __name__ == "__main__":
 
         Todo.draw(ventana)
         mabby.draw(ventana)
+
         Todo.drawGrid(ventana)
         
         pygame.display.update()
