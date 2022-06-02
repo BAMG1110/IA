@@ -20,13 +20,13 @@ def checkBorders(coord):
     x = coord[0]
     y = coord[1]
     b = [True, True, True, True]
-    if x == (map_width) - obj_size:
+    if x == (map_width - obj_size):
         b[0] = False
-    if y == 0:
+    if y - obj_size < 0:
         b[1] = False
-    if x == 0:
+    if x - obj_size < 0:
         b[2] = False
-    if y == (map_height) - obj_size:
+    if y == (map_height - obj_size):
         b[3] = False
 
     return b
@@ -40,15 +40,6 @@ class Todo:
         # cls.objetos[obj.coord[0]][obj.coord[1]]
         x, y = obj.coord[1]//obj_size, obj.coord[0]//obj_size
         cls.objetos[x][y] = obj
-    
-    @classmethod
-    def verTodo(cls):
-        print("Todo")
-        for obj in cls.objetos:
-            try:
-                print(obj)
-            except:
-                pass
 
     @classmethod
     def eliminarObjeto(cls, pos):
@@ -56,6 +47,11 @@ class Todo:
         # print(f"pos: {pos}")
         x, y = pos[1]//obj_size, pos[0]//obj_size
         cls.objetos[x][y] = 0
+
+    @classmethod
+    def obtenerObjeto(cls, coord):
+        obj = cls.objetos[coord[1]//obj_size][coord[0]//obj_size]
+        return obj
 
     @classmethod
     def defMeta(cls):
@@ -75,10 +71,19 @@ class Todo:
             except:
                 pass
             cls.meta_actual = pos
+        return Materia(3, "comida", (0,254,0), cls.meta_actual)
+    
+    @classmethod
+    def verTodo(cls):
+        print("Todo")
+        for obj in cls.objetos:
+            try:
+                print(obj)
+            except:
+                pass
 
         return Materia(3, "Meta", (0, 255, 0), cls.meta_actual)
         
-
     @classmethod
     def draw(cls, todo):
         for obj_i in cls.objetos:
@@ -110,6 +115,7 @@ class Todo:
         elif pygame.mouse.get_pressed()[2] == True:
             cls.eliminarObjeto(pos)
 
+
 class Materia():
     def __init__(self, id, name, color, coord, size=[obj_size, obj_size]):
         self.id = id
@@ -121,7 +127,6 @@ class Materia():
     def __repr__(self):
         return f"{self.id}"
 
-    # surface, color, (posicion & dimension)
     def draw(self, ventana):
         size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
         pygame.draw.rect(ventana, self.color, size)
@@ -132,7 +137,6 @@ class Materia():
         print('coordenadas:\t', self.coord[0] // obj_size, self.coord[1] // obj_size)
         print('nombre:     \t', self.name)
 
-    # print(f"coord: {sum[0]//obj_size}, {sum[1]//obj_size} - intensidad: {Todo.objetos[sum[1]//obj_size][sum[0]//obj_size].intensidad}")
     def generarRastro(self, rango, coord = None):
         p = [[obj_size, 0], [0, -obj_size], [-obj_size, 0], [0, obj_size]]
         z = []
@@ -163,7 +167,7 @@ class SerVivo(Materia):
     def __init__(self, id, name, color, coord, mapa = generarMatriz(0)):
         super().__init__(id, name, color, coord)
         self.mapa = mapa
-        self.moving = False
+        self.buscando = False
         self.vel = obj_size
 
     def defOrigen(self):
@@ -178,141 +182,97 @@ class SerVivo(Materia):
         for i in self.mapa:
             print(f"{i}")
 
-    def movRandom(self):
-        if self.moving:
+    def buscarComida(self):
+        if self.buscando:
             # lista = [pygame.K_d, pygame.K_e, pygame.K_w, pygame.K_q, pygame.K_a, pygame.K_z, pygame.K_x, pygame.K_c]
             lista = [pygame.K_d, pygame.K_w, pygame.K_a, pygame.K_x]
             d = random.sample(lista, k=1)[-1]
             self.accion(d)
 
     def percibir(self):
-        coord_x = self.coord[0]
-        coord_y = self.coord[1]
-        try:
-            obj_0 = Todo.objetos[coord_y//obj_size][(coord_x+obj_size)//obj_size]
-        except:
-            obj_0 = None
-        try:
-            obj_1 = Todo.objetos[(coord_y-obj_size)//obj_size][(coord_x+obj_size)//obj_size]
-        except:
-            obj_1 = None
-        try:
-            obj_2 = Todo.objetos[(coord_y-obj_size)//obj_size][(coord_x)//obj_size]
-        except:
-            obj_2 = None
-        try:
-            obj_3 = Todo.objetos[(coord_y-obj_size)//obj_size][(coord_x-obj_size)//obj_size]
-        except:
-            obj_3 = None
-        try:
-            obj_4 = Todo.objetos[coord_y//obj_size][(coord_x-obj_size)//obj_size]
-        except:
-            obj_4 = None
-        try:
-            obj_5 = Todo.objetos[(coord_y+obj_size)//obj_size][(coord_x-obj_size)//obj_size]
-        except:
-            obj_5 = None
-        try:
-            obj_6 = Todo.objetos[(coord_y+obj_size)//obj_size][(coord_x)//obj_size]
-        except:
-            obj_6 = None
-        try:
-            obj_7 = Todo.objetos[(coord_y+obj_size)//obj_size][(coord_x+obj_size)//obj_size]
-        except:
-            obj_7 = None
+        x = self.coord[0]
+        y = self.coord[1]
 
-        percepcion = [obj_0, obj_1, obj_2, obj_3, obj_4, obj_5, obj_6, obj_7]
+        E = Todo.obtenerObjeto([x+obj_size, y])
+        N = Todo.obtenerObjeto([x, y-obj_size])
+        O = Todo.obtenerObjeto([x-obj_size, y])
+        S = Todo.obtenerObjeto([x, y+obj_size])
+    
+        percibido = {}
+        b = checkBorders(self.coord)
 
-        return percepcion, coord_x, coord_y
+        if b[0]:
+            if E != 0:
+                if E.id != 2:
+                    percibido["E"] = [E, True]
+                else:
+                    percibido["E"] = [E, False]
+            else:
+                percibido["E"] = [E, True]
+        else:
+            percibido["E"] = ["NO EXISTE", False]
+
+        if b[1]:
+            if N != 0:
+                if N.id != 2:
+                    percibido["N"] = [N, True]
+                else:
+                    percibido["N"] = [N, False]
+            else:
+                percibido["N"] = [N, True]
+        else:
+            percibido["N"] = ["NO EXISTE", False]
+
+        if b[2]:
+            if O != 0:
+                if O.id != 2:
+                    percibido["O"] = [O,True]
+                else:
+                    percibido["O"] = [E,False]
+            else:
+                percibido["O"] = [O, True]
+        else:
+            percibido["O"] = ["NO EXISTE", False]
+
+        if b[3]:
+            if S != 0:
+                if S.id != 2:
+                    percibido["S"] = [S,True]
+                else:
+                    percibido["S"] = [S,False]
+            else:
+                percibido["S"] = [S, True]
+        else:
+            percibido["S"] = ["NO EXISTE", False]
+
+
+        # print(percibido)
+        return percibido
+
+    def mover(self, direccion):
+        print(direccion)
+        if direccion == "E":
+            self.coord[0] += self.vel
+        if direccion == "N":
+            self.coord[1] -= self.vel
+        if direccion == "O":
+            self.coord[0] -= self.vel
+        if direccion == "S":
+            self.coord[1] += self.vel
+        
 
     def accion(self, evento):
-        Todo.eliminarObjeto(self.coord)
-        b = checkBorders(self.coord)
-        p, x, y = self.percibir()
-        # print(f"bordes:     {b}")
+        print("@: ", evento)
+        p = self.percibir()
 
-        # Este & Noreste
-        if evento == pygame.K_d and b[0]:
-            print(f"percepcion: {p[0]}, {p[0]}")
-            # print(f"0 - obj_E: {p[0]}")
-            if p[0] == 0 or p[0].id == 4:
-                self.coord[0] += self.vel
-                self.mapa[y//obj_size][x//obj_size] += 1
-            elif p[0].id == 3:
-                self.coord[0] += self.vel
-                self.moving = False
-
-        if evento == pygame.K_e and b[0] and b[1]:
-            # print(f"1 - obj_NE: {p[1]}")
-            if p[1] == 0 or p[1].id == 4:
-                self.coord[0] += self.vel
-                self.coord[1] -= self.vel
-                self.mapa[y//obj_size][x//obj_size] += 1
-            elif p[1].id == 3:
-                self.coord[0] += self.vel
-                self.coord[1] -= self.vel
-                self.moving = False
-        
-        # Norte & Noroeste
-        if evento == pygame.K_w and b[1]:
-            # print(f"2 - obj_N: {p[2]}")
-            if p[2] == 0 or p[2].id == 4:
-                self.coord[1] -= self.vel
-                self.mapa[y//obj_size][x//obj_size] += 1
-            elif p[2].id == 3:
-                self.coord[1] -= self.vel
-                self.moving = False
-
-        if evento == pygame.K_q and b[1] and b[2]:
-            # print(f"3 - obj_NO: {p[3]}")
-            if p[3] == 0 or p[3].id == 4:
-                self.coord[0] -= self.vel
-                self.coord[1] -= self.vel
-                self.mapa[y//obj_size][x//obj_size] += 1
-            elif p[3].id == 3:
-                self.coord[0] -= self.vel
-                self.coord[1] -= self.vel
-                self.moving = False
-
-        # Oeste & Suroeste
-        if evento == pygame.K_a and b[2]:
-            # print(f"4 - obj_O: {p[4]}")
-            if p[4] == 0 or p[4].id == 4:
-                self.coord[0] -= self.vel
-                self.mapa[y//obj_size][x//obj_size] += 1
-            elif p[4].id == 3:
-                self.coord[0] -= self.vel
-                self.moving = False
-        
-        if evento == pygame.K_z and b[2] and b[3]:
-            # print(f"5 - obj_SO: {p[5]}")
-            if p[5] == 0 or p[5].id == 4:
-                self.coord[0] -= self.vel
-                self.coord[1] += self.vel
-                self.mapa[y//obj_size][x//obj_size] += 1
-            elif p[5].id == 3:
-                self.coord[0] -= self.vel
-                self.moving = False
-        
-        # Sur & Sureste
-        if evento == pygame.K_x and b[3]:
-            # print(f"6 - obj_S: {p[6]}")
-            if p[6] == 0 or p[6].id == 4:
-                self.coord[1] += self.vel
-                self.mapa[y//obj_size][x//obj_size] += 1
-            elif p[6].id == 3:
-                self.coord[0] -= self.vel
-                self.moving = False
-        
-        if evento == pygame.K_c and b[3] and b[0]:
-            # print(f"7 - obj_SO: {p[7]}")
-            if p[7] == 0 or p[7].id == 4:
-                self.coord[0] += self.vel
-                self.coord[1] += self.vel
-                self.mapa[y//obj_size][x//obj_size] += 1
-            elif p[7].id == 3:
-                self.coord[0] -= self.vel
-                self.moving = False
+        if evento == pygame.K_d and p["E"][1]:
+            self.mover("E")
+        if evento == pygame.K_w and p["N"][1]:
+            self.mover("N")
+        if evento == pygame.K_a and p["O"][1]:
+            self.mover("O")
+        if evento == pygame.K_s and p["S"][1]:
+            self.mover("S")
 
         # descripcion
         if evento == pygame.K_i:
@@ -328,6 +288,7 @@ class SerVivo(Materia):
                 self.moving = False
             else:
                 self.moving = True
+
 
 class feromona(Materia):
     def __init__(self, id, name, color, coord, origen, intensidad = 0):

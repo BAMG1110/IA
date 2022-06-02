@@ -10,7 +10,6 @@ if __name__ == "__main__":
 
     # objetos
     mabby = SerVivo(id=1, name="mabby", color=(255,0,255), coord=[0, 0])
-    Todo.agregarObjeto(mabby)
 
     ventana.fill((0,0,0))
 
@@ -49,9 +48,9 @@ if __name__ == "__main__":
 
         # update
         ventana.fill((0,0,0))
-        mabby.movRandom()
-        Todo.agregarObjeto(mabby)
+
         Todo.draw(ventana)
+        mabby.draw(ventana)
         Todo.drawGrid(ventana)
         
         pygame.display.update()
