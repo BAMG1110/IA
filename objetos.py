@@ -43,8 +43,6 @@ class Todo:
 
     @classmethod
     def eliminarObjeto(cls, pos):
-        # cls.objetos[obj.coord[0]][obj.coord[1]]
-        # print(f"pos: {pos}")
         x, y = pos[1]//obj_size, pos[0]//obj_size
         cls.objetos[x][y] = 0
 
@@ -117,12 +115,13 @@ class Todo:
 
 
 class Materia():
-    def __init__(self, id, name, color, coord, size=[obj_size, obj_size]):
+    def __init__(self, id, name, color, coord, size=[obj_size, obj_size], intensidad = 0):
         self.id = id
         self.name = name
         self.color = color
         self.coord = coord
         self.size = size
+        self.intensidad = intensidad
     
     def __repr__(self):
         return f"{self.id}"
@@ -184,11 +183,41 @@ class SerVivo(Materia):
                 l=Font.render(str(self.mapa[j][i]), False, (254,254,254), (0,0,0))
                 ventana.blit(l, (i*obj_size + (obj_size / 4), j*obj_size + (obj_size / 4)))
 
-    # def buscarComida(self, ):
-    #     print(self.mapa[1][0])
-    #     if self.buscando:
-    #         # lista = [pygame.K_d, pygame.K_w, pygame.K_a, pygame.K_x]
-    #         # d = random.sample(lista, k=1)[-1]
+    def buscarComida(self):
+        p = self.percibir()
+        x = self.coord[0]
+        y = self.coord[1]
+        posActual = self.mapa[y//obj_size][x//obj_size]
+        d = []
+        adyacentes = []
+        feromona = None
+
+        if x+obj_size < map_width and p["E"][1]:
+            d.append([x+obj_size, y, "E"])
+        if y-obj_size >= 0 and p["N"][1]:
+            d.append([x, y-obj_size, "N"])
+        if x-obj_size >= 0 and p["O"][1]:
+            d.append([x-obj_size, y, "O"])
+        if y+obj_size < map_height and p["S"][1]:
+            d.append([x, y+obj_size, "S"])
+        
+        # revolver lista
+        d = random.sample(d, k=len(d))
+
+        for r in d:
+            temp1 = self.mapa[r[1]//obj_size][r[0]//obj_size]
+            try:
+                if not(feromona):
+                    feromona = p[r[2]][0]
+                elif p[r[2]][0].intensidad < feromona.intensidad:
+                    feromona, f = p[r[2]][0], r
+            except:
+                pass
+        try:
+            print("fero 1: ", f, feromona, feromona.intensidad, feromona.coord)
+            self.mover(f[2])
+        except:
+            print("fero", feromona)
 
     def percibir(self):
         x = self.coord[0]
@@ -257,7 +286,6 @@ class SerVivo(Materia):
         return percibido
 
     def mover(self, direccion):
-        print(direccion)
         if direccion == "E":
             self.coord[0] += self.vel
             # lugar visitado, subir contador en el mapa
@@ -302,17 +330,17 @@ class SerVivo(Materia):
         
         # mover random
         if evento == pygame.K_SPACE:
-            if self.moving:
-                self.moving = False
+            if self.buscando:
+                self.buscando = False
             else:
-                self.moving = True
+                self.buscando = True
 
 
 class feromona(Materia):
-    def __init__(self, id, name, color, coord, origen, intensidad = 0):
+    def __init__(self, id, name, color, coord, intensidad, origen):
         super().__init__(id, name, color, coord)
-        self.origen = origen
         self.intensidad = intensidad
+        self.origen = origen
 
     # def draw(self, ventana):
     #     Font=pygame.font.SysFont('timesnewroman',  15)
