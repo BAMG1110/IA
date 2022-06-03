@@ -20,13 +20,13 @@ def checkBorders(coord):
     x = coord[0]
     y = coord[1]
     b = [True, True, True, True]
-    if x == (map_width - obj_size):
+    if x+obj_size >= map_width:
         b[0] = False
     if y - obj_size < 0:
         b[1] = False
     if x - obj_size < 0:
         b[2] = False
-    if y == (map_height - obj_size):
+    if y+obj_size >= map_height:
         b[3] = False
 
     return b
@@ -187,46 +187,82 @@ class SerVivo(Materia):
         p = self.percibir()
         x = self.coord[0]
         y = self.coord[1]
-        posActual = self.mapa[y//obj_size][x//obj_size]
         d = []
-        adyacentes = []
-        feromona = None
+        f = None
+        fm = None
 
-        if x+obj_size < map_width and p["E"][1]:
-            d.append([x+obj_size, y, "E"])
-        if y-obj_size >= 0 and p["N"][1]:
-            d.append([x, y-obj_size, "N"])
-        if x-obj_size >= 0 and p["O"][1]:
-            d.append([x-obj_size, y, "O"])
-        if y+obj_size < map_height and p["S"][1]:
-            d.append([x, y+obj_size, "S"])
-        
-        # revolver lista
-        d = random.sample(d, k=len(d))
+        if p["E"][1]:
+            if p["E"][0] != 0:
+                if not(f):
+                    f = p["E"]
+                    fm = "E"
+                else:
+                    if f[0].intensidad > p["E"][0].intensidad:
+                        f = p["E"]
+                        fm = "E"
+            d.append(["E", self.mapa[y//obj_size][(x+obj_size)//obj_size]])
 
-        for r in d:
-            temp1 = self.mapa[r[1]//obj_size][r[0]//obj_size]
-            try:
-                if not(feromona):
-                    feromona = p[r[2]][0]
-                elif p[r[2]][0].intensidad < feromona.intensidad:
-                    feromona, f = p[r[2]][0], r
-            except:
-                pass
+        if p["O"][1]:
+            if p["O"][0] != 0:
+                if not(f):
+                    f = p["O"]
+                else:
+                    if f[0].intensidad > p["O"][0].intensidad:
+                        f = p["O"]
+                        fm = "O"
+            d.append(["O", self.mapa[y//obj_size][(x-obj_size)//obj_size]])
+
+        if p["N"][1]:
+            if p["N"][0] != 0:
+                if not(f):
+                    f = p["N"]
+                else:
+                    if f[0].intensidad > p["N"][0].intensidad:
+                        f = p["N"]
+                        fm = "N"
+            d.append(["N", self.mapa[(y-obj_size)//obj_size][x//obj_size]])
+
+        if p["S"][1]:
+            if p["S"][0] != 0:
+                if not(f):
+                    f = p["S"]
+                else:
+                    if f[0].intensidad > p["S"][0].intensidad:
+                        f = p["S"]
+                        fm = "S"
+            d.append(["S", self.mapa[(y+obj_size)//obj_size][x//obj_size]])
+
         try:
-            print("fero 1: ", f, feromona, feromona.intensidad, feromona.coord)
-            self.mover(f[2])
+            print(f"fm {fm} f {f[0].intensidad}")
         except:
-            print("fero", feromona)
+            pass
+        # print(f"p: {p}")
+        # print(f"d: {d}")
 
     def percibir(self):
         x = self.coord[0]
         y = self.coord[1]
 
-        E = Todo.obtenerObjeto([x+obj_size, y])
-        N = Todo.obtenerObjeto([x, y-obj_size])
-        O = Todo.obtenerObjeto([x-obj_size, y])
-        S = Todo.obtenerObjeto([x, y+obj_size])
+        try:
+            E = Todo.obtenerObjeto([x+obj_size, y])
+        except:
+            pass
+
+        try:
+            N = Todo.obtenerObjeto([x, y-obj_size])
+        except:
+            pass
+
+        try:
+            O = Todo.obtenerObjeto([x-obj_size, y])
+        except:
+            pass
+
+        try:
+            S = Todo.obtenerObjeto([x, y+obj_size])
+        except:
+            pass
+
     
         percibido = {}
         b = checkBorders(self.coord)
@@ -260,9 +296,9 @@ class SerVivo(Materia):
         if b[2]:
             if O != 0:
                 if O.id != 2:
-                    percibido["O"] = [O,True]
+                    percibido["O"] = [O, True]
                 else:
-                    percibido["O"] = [E,False]
+                    percibido["O"] = [O, False]
                     # registrar objeto
                     self.mapa[y//obj_size][(x-obj_size)//obj_size] = -1
             else:
