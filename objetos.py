@@ -1,55 +1,156 @@
 import pygame, pygame.font
 import random, math
 
+pygame.font.init()
 map_width = 640
 map_height = 640
 obj_size = 32
 
-pygame.font.init()
-
-def generarMatriz(t):
-    m = []
-    for x in range(map_width//obj_size):
-        x = []
-        for y in range(map_height//obj_size):
-            x.append(t)
-        m.append(x)
-    return m
 
 def checkBorders(coord):
     x = coord[0]
     y = coord[1]
     b = [True, True, True, True]
     if x+obj_size >= map_width:
-        b[0] = False
+        b[0] = None
     if y - obj_size < 0:
-        b[1] = False
+        b[1] = None
     if x - obj_size < 0:
-        b[2] = False
+        b[2] = None
     if y+obj_size >= map_height:
-        b[3] = False
+        b[3] = None
 
     return b
 
+def checkAround(coord):
+    x = coord[0]//obj_size
+    y = coord[1]//obj_size
+
+    b = checkBorders(coord)
+    periferia = [None, None, None, None]
+
+    if b[0]:
+        E = Todo.objetos[y][x+1]
+        periferia[0] = E
+    if b[1]:
+        N = Todo.objetos[y-1][x]
+        periferia[1] = N
+    if b[2]:
+        O = Todo.objetos[y][x-1]
+        periferia[2] = O
+    if b[3]:
+        S = Todo.objetos[y+1][x]
+        periferia[3] = S
+    
+    return periferia
+
+def generarMatriz():
+    matriz = []
+    for i in range(map_width//obj_size):
+        fila = []
+        for j in range(map_height//obj_size):
+            coordenada = [j*obj_size, i*obj_size]
+            fila.append(Materia(0, "Nada", (0,0,0), coordenada))
+        matriz.append(fila)
+    
+    return matriz
+
+class Materia():
+    def __init__(self, id, name, color, coord, size=[obj_size, obj_size], rastro = 0):
+        self.id = id
+        self.name = name
+        self.color = color
+        self.coord = coord
+        self.size = size
+        self.rastro = rastro
+    
+    def __repr__(self):
+        return f"{self.id}"
+
+    def draw(self, ventana):
+        size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
+        pygame.draw.rect(ventana, self.color, size)
+
+    @property
+    def descripcion(self):
+        print('id:         \t', self.id)
+        print('coordenadas:\t', self.coord[0] // obj_size, self.coord[1] // obj_size)
+        print('nombre:     \t', self.name)
+
+    def generarRastro(self, rango, origen = None):
+        coord = self.coord
+        if not(origen):
+            origen = self.coord
+        
+        p = checkAround(coord)
+        z = []
+
+        if self.rastro < rango:
+            # Este
+            if p[0]:
+                if p[0].id == 0:
+                    # calcular intensidad segun el origen, Manhattan distance
+                    intensidad = (abs(p[0].coord[0] - origen[0]) + abs(p[0].coord[1] - origen[1])) // obj_size
+                    c = (120/rango)*intensidad
+                    color = tuple([0, 130, 0])
+                    temp = feromona(4, name = "feromona", color = color, coord = p[0].coord, rastro = intensidad, origen = origen)
+                    Todo.agregarObjeto(temp)
+                    z.append(temp)
+            # Norte
+            if p[1]:
+                if p[1].id == 0:
+                    # calcular intensidad segun el origen, Manhattan distance
+                    intensidad = (abs(p[1].coord[0] - origen[0]) + abs(p[1].coord[1] - origen[1])) // obj_size
+                    c = (120/rango)*intensidad
+                    color = tuple([0, 130, 0])
+                    temp = feromona(4, name = "feromona", color = color, coord = p[1].coord, rastro = intensidad, origen = origen)
+                    Todo.agregarObjeto(temp)
+                    z.append(temp)
+            # Oeste
+            if p[2]:
+                if p[2].id == 0:
+                    # calcular intensidad segun el origen, Manhattan distance
+                    intensidad = (abs(p[2].coord[0] - origen[0]) + abs(p[2].coord[1] - origen[1])) // obj_size
+                    c = (120/rango)*intensidad
+                    color = tuple([0, 130, 0])
+                    temp = feromona(4, name = "feromona", color = color, coord = p[2].coord, rastro = intensidad, origen = origen)
+                    Todo.agregarObjeto(temp)
+                    z.append(temp)
+            # Sur
+            if p[3]:
+                if p[3].id == 0:
+                    # calcular intensidad segun el origen, Manhattan distance
+                    intensidad = (abs(p[3].coord[0] - origen[0]) + abs(p[3].coord[1] - origen[1])) // obj_size
+                    c = (120/rango)*intensidad
+                    color = tuple([0, 130, 0])
+                    temp = feromona(4, name = "feromona", color = color, coord = p[3].coord, rastro = intensidad, origen = origen)
+                    Todo.agregarObjeto(temp)
+                    z.append(temp)
+
+            for ad in z:
+                print(ad.rastro)
+                ad.generarRastro(rango, origen)
+
+
 class Todo:
-    objetos = generarMatriz(0)
+    objetos = generarMatriz()
     meta_actual = False
 
     @classmethod
     def agregarObjeto(cls, obj):
-        # cls.objetos[obj.coord[0]][obj.coord[1]]
-        x, y = obj.coord[1]//obj_size, obj.coord[0]//obj_size
-        cls.objetos[x][y] = obj
+        x, y = obj.coord[0]//obj_size, obj.coord[1]//obj_size
+        cls.objetos[y][x] = obj
 
     @classmethod
     def eliminarObjeto(cls, pos):
-        x, y = pos[1]//obj_size, pos[0]//obj_size
-        cls.objetos[x][y] = 0
+        x, y = pos[0]//obj_size, pos[1]//obj_size
+        cls.objetos[y][x] = Materia(0, "Nada", (0,0,0), [x, y])
 
     @classmethod
-    def obtenerObjeto(cls, coord):
-        obj = cls.objetos[coord[1]//obj_size][coord[0]//obj_size]
-        return obj
+    def verObjetos(cls):
+        for obj in cls.objetos:
+            print(obj)
+        print("\n")
 
     @classmethod
     def defMeta(cls):
@@ -70,24 +171,12 @@ class Todo:
                 pass
             cls.meta_actual = pos
         return Materia(3, "comida", (0,254,0), cls.meta_actual)
-    
-    @classmethod
-    def verTodo(cls):
-        print("Todo")
-        for obj in cls.objetos:
-            try:
-                print(obj)
-            except:
-                pass
-
-        return Materia(3, "Meta", (0, 255, 0), cls.meta_actual)
         
     @classmethod
     def draw(cls, todo):
-        for obj_i in cls.objetos:
-            for obj_j in obj_i:
-                if obj_j:
-                    obj_j.draw(todo)
+        for i in cls.objetos:
+            for j in i:
+                j.draw(todo)
 
     @classmethod
     def drawGrid(cls, todo):
@@ -113,62 +202,15 @@ class Todo:
         elif pygame.mouse.get_pressed()[2] == True:
             cls.eliminarObjeto(pos)
 
-
-class Materia():
-    def __init__(self, id, name, color, coord, size=[obj_size, obj_size], intensidad = 0):
-        self.id = id
-        self.name = name
-        self.color = color
-        self.coord = coord
-        self.size = size
-        self.intensidad = intensidad
-    
-    def __repr__(self):
-        return f"{self.id}"
-
-    def draw(self, ventana):
-        size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
-        pygame.draw.rect(ventana, self.color, size)
-
-    @property
-    def descripcion(self):
-        print('id:         \t', self.id)
-        print('coordenadas:\t', self.coord[0] // obj_size, self.coord[1] // obj_size)
-        print('nombre:     \t', self.name)
-
-    def generarRastro(self, rango, coord = None):
-        p = [[obj_size, 0], [0, -obj_size], [-obj_size, 0], [0, obj_size]]
-        z = []
-        if not(coord):
-            coord = self.coord
-
-        for i in p:
-            zipped_lists = zip(i, coord)
-            sum = [a + b for (a, b) in zipped_lists]
-
-            # obtener adyacentes validos
-            if (sum[0] >= 0 and sum[0] <= map_width-obj_size) and (sum[1] >= 0 and sum[1] <= map_width-obj_size):
-                if not(Todo.objetos[sum[1]//obj_size][sum[0]//obj_size] != 0):
-                    # calcular intensidad segun el origen, Manhattan distance
-                    intensidad = (abs(sum[0] - self.coord[0]) + abs(sum[1] - self.coord[1])) // obj_size
-
-                    # print(f"temp: {intensidad} rango: {rango} - {intensidad <= rango}")
-                    if intensidad <= rango:
-                        # c = intensidad*10 if intensidad*10 <= 120 else 120
-                        c = (120/rango)*intensidad
-                        color = tuple([0, 130-(c), 0])
-                        temp = feromona(4, name = "feromona", color = color, coord = sum, origen = coord, intensidad = intensidad)
-                        Todo.agregarObjeto(temp)
-                        self.generarRastro(rango, sum)
-                    
-
+     
 class SerVivo(Materia):
-    def __init__(self, id, name, color, coord, mapa = generarMatriz(0)):
+    def __init__(self, id, name, color, coord, mapa = generarMatriz()):
         super().__init__(id, name, color, coord)
         self.mapa = mapa
         self.mostrarMapa = False
-        self.buscando = False
+        self.moving = False
         self.vel = obj_size
+        self.ultima_ubicacion = ""
 
     def defOrigen(self):
         Todo.eliminarObjeto(self.coord)
@@ -182,143 +224,49 @@ class SerVivo(Materia):
                 Font=pygame.font.SysFont('timesnewroman',  15)
                 l=Font.render(str(self.mapa[j][i]), False, (254,254,254), (0,0,0))
                 ventana.blit(l, (i*obj_size + (obj_size / 4), j*obj_size + (obj_size / 4)))
+    
+    def movRandom(self):
+        if self.moving:
+            lista = ["E", "N", "O", "S"]
+            d = random.sample(lista, k=1)[-1]
+            
+            if d != self.ultima_ubicacion:
+                if d == "E":
+                    self.ultima_ubicacion = "O"
+                elif d == "O":
+                    self.ultima_ubicacion = "E"
+                elif d == "N":
+                    self.ultima_ubicacion = "S"
+                elif d == "S":
+                    self.ultima_ubicacion = "N"
 
-    def buscarComida(self):
-        p = self.percibir()
-        x = self.coord[0]
-        y = self.coord[1]
-        d = []
-        f = None
-        fm = None
-
-        if p["E"][1]:
-            if p["E"][0] != 0:
-                if not(f):
-                    f = p["E"]
-                    fm = "E"
-                else:
-                    if f[0].intensidad > p["E"][0].intensidad:
-                        f = p["E"]
-                        fm = "E"
-            d.append(["E", self.mapa[y//obj_size][(x+obj_size)//obj_size]])
-
-        if p["O"][1]:
-            if p["O"][0] != 0:
-                if not(f):
-                    f = p["O"]
-                else:
-                    if f[0].intensidad > p["O"][0].intensidad:
-                        f = p["O"]
-                        fm = "O"
-            d.append(["O", self.mapa[y//obj_size][(x-obj_size)//obj_size]])
-
-        if p["N"][1]:
-            if p["N"][0] != 0:
-                if not(f):
-                    f = p["N"]
-                else:
-                    if f[0].intensidad > p["N"][0].intensidad:
-                        f = p["N"]
-                        fm = "N"
-            d.append(["N", self.mapa[(y-obj_size)//obj_size][x//obj_size]])
-
-        if p["S"][1]:
-            if p["S"][0] != 0:
-                if not(f):
-                    f = p["S"]
-                else:
-                    if f[0].intensidad > p["S"][0].intensidad:
-                        f = p["S"]
-                        fm = "S"
-            d.append(["S", self.mapa[(y+obj_size)//obj_size][x//obj_size]])
-
-        try:
-            print(f"fm {fm} f {f[0].intensidad}")
-        except:
-            pass
-        # print(f"p: {p}")
-        # print(f"d: {d}")
+                print(d, self.ultima_ubicacion)
+                self.accion(d)
 
     def percibir(self):
-        x = self.coord[0]
-        y = self.coord[1]
+        x = self.coord[0]//obj_size
+        y = self.coord[1]//obj_size
 
-        try:
-            E = Todo.obtenerObjeto([x+obj_size, y])
-        except:
-            pass
-
-        try:
-            N = Todo.obtenerObjeto([x, y-obj_size])
-        except:
-            pass
-
-        try:
-            O = Todo.obtenerObjeto([x-obj_size, y])
-        except:
-            pass
-
-        try:
-            S = Todo.obtenerObjeto([x, y+obj_size])
-        except:
-            pass
-
-    
-        percibido = {}
         b = checkBorders(self.coord)
+        percibido = [None, None, None, None]
 
         if b[0]:
-            if E != 0:
-                if E.id != 2:
-                    percibido["E"] = [E, True]
-                else:
-                    percibido["E"] = [E, False]
-                    # registrar objeto
-                    self.mapa[y//obj_size][(x+obj_size)//obj_size] = -1
-            else:
-                percibido["E"] = [E, True]
-        else:
-            percibido["E"] = ["NO EXISTE", False]
-
+            E = Todo.objetos[y][x+1]
+            if E.id == 0:
+                percibido[0] = E
         if b[1]:
-            if N != 0:
-                if N.id != 2:
-                    percibido["N"] = [N, True]
-                else:
-                    percibido["N"] = [N, False]
-                    # registrar objeto
-                    self.mapa[(y-obj_size)//obj_size][x//obj_size] = -1
-            else:
-                percibido["N"] = [N, True]
-        else:
-            percibido["N"] = ["NO EXISTE", False]
-
+            N = Todo.objetos[y-1][x]
+            if N.id == 0:
+                percibido[1] = N
         if b[2]:
-            if O != 0:
-                if O.id != 2:
-                    percibido["O"] = [O, True]
-                else:
-                    percibido["O"] = [O, False]
-                    # registrar objeto
-                    self.mapa[y//obj_size][(x-obj_size)//obj_size] = -1
-            else:
-                percibido["O"] = [O, True]
-        else:
-            percibido["O"] = ["NO EXISTE", False]
-
+            O = Todo.objetos[y][x-1]
+            if O.id == 0:
+                percibido[2] = O
         if b[3]:
-            if S != 0:
-                if S.id != 2:
-                    percibido["S"] = [S,True]
-                else:
-                    percibido["S"] = [S,False]
-                    # registrar objeto
-                    self.mapa[(y+obj_size)//obj_size][x//obj_size] = -1
-            else:
-                percibido["S"] = [S, True]
-        else:
-            percibido["S"] = ["NO EXISTE", False]
-
+            S = Todo.objetos[y+1][x]
+            if S.id == 0:
+                percibido[3] = S
+        
         return percibido
 
     def mover(self, direccion):
@@ -340,16 +288,16 @@ class SerVivo(Materia):
             self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
         
     def accion(self, evento):
-        print("@: ", evento)
         p = self.percibir()
+        print("@: ", evento, p)
 
-        if evento == pygame.K_d and p["E"][1]:
+        if evento == pygame.K_d and p[0]:
             self.mover("E")
-        if evento == pygame.K_w and p["N"][1]:
+        if evento == pygame.K_w and p[1]:
             self.mover("N")
-        if evento == pygame.K_a and p["O"][1]:
+        if evento == pygame.K_a and p[2]:
             self.mover("O")
-        if evento == pygame.K_s and p["S"][1]:
+        if evento == pygame.K_s and p[3]:
             self.mover("S")
 
         # descripcion
@@ -366,24 +314,24 @@ class SerVivo(Materia):
         
         # mover random
         if evento == pygame.K_SPACE:
-            if self.buscando:
-                self.buscando = False
+            if self.moving:
+                self.moving = False
             else:
-                self.buscando = True
+                self.moving = True
 
 
 class feromona(Materia):
-    def __init__(self, id, name, color, coord, intensidad, origen):
+    def __init__(self, id, name, color, coord, rastro, origen):
         super().__init__(id, name, color, coord)
-        self.intensidad = intensidad
+        self.rastro = rastro
         self.origen = origen
 
-    # def draw(self, ventana):
-    #     Font=pygame.font.SysFont('timesnewroman',  15)
-    #     l=Font.render(str(self.intensidad), False, (254,254,254), self.color)
-    #     x = self.coord[0] + (obj_size / 4)
-    #     y = self.coord[1] + (obj_size / 4)
+    def draw(self, ventana):
+        Font=pygame.font.SysFont('timesnewroman',  15)
+        l=Font.render(str(self.rastro), False, (254,254,254), self.color)
+        x = self.coord[0] + (obj_size / 4)
+        y = self.coord[1] + (obj_size / 4)
 
-    #     size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
-    #     pygame.draw.rect(ventana, self.color, size)
-    #     ventana.blit(l, (x, y))
+        size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
+        pygame.draw.rect(ventana, self.color, size)
+        ventana.blit(l, (x, y))

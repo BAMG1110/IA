@@ -29,13 +29,13 @@ if __name__ == "__main__":
                 try:
                     key = getattr(e, 'key')
                     if key == pygame.K_m:
-                        Todo.verTodo()
+                        Todo.verObjetos()
                     elif key == pygame.K_o:
                         mabby.defOrigen()
                     elif key == pygame.K_p:
                         meta = Todo.defMeta()
                         Todo.agregarObjeto(meta)
-                        meta.generarRastro(8)
+                        meta.generarRastro(6)
                     else:
                         mabby.accion(key)
                 except:
@@ -54,8 +54,8 @@ if __name__ == "__main__":
         if mabby.mostrarMapa:
             mabby.verMapa(ventana)
         
-        if mabby.buscando:
-            mabby.buscarComida()
+        if mabby.moving:
+            mabby.movRandom()
 
         Todo.drawGrid(ventana)
         
