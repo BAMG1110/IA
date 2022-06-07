@@ -96,8 +96,8 @@ class Materia():
                         Todo.agregarObjeto(temp)
                         z.append(temp)
 
-                for ad in z:
-                    ad.generarRastro(rango, origen)
+        for ad in z:
+            ad.generarRastro(rango, origen)
 
 
 class Todo:
@@ -173,7 +173,7 @@ class SerVivo(Materia):
         self.mostrarMapa = False
         self.moving = False
         self.vel = obj_size
-        self.ultima_ubicacion = ""
+        self.uu = ""
 
     def defOrigen(self):
         Todo.eliminarObjeto(self.coord)
@@ -190,21 +190,52 @@ class SerVivo(Materia):
     
     def movRandom(self):
         if self.moving:
-            lista = ["E", "N", "O", "S"]
-            d = random.sample(lista, k=1)[-1]
-            
-            if d != self.ultima_ubicacion:
-                if d == "E":
-                    self.ultima_ubicacion = "O"
-                elif d == "O":
-                    self.ultima_ubicacion = "E"
-                elif d == "N":
-                    self.ultima_ubicacion = "S"
-                elif d == "S":
-                    self.ultima_ubicacion = "N"
+            lista = []
+            fer = []
+            r_min = 1000
+            f_min = None
+            p = self.percibir()
 
-                print(d, self.ultima_ubicacion)
-                self.accion(d)
+            if p[0] and self.uu != "E":
+                if p[0].id == 4 or p[0].id == 3:
+                    fer.append(["E", p[0]])
+                else:
+                    lista.append("E")
+            if p[1] and self.uu != "N":
+                if p[1].id == 4 or p[1].id == 3:
+                    fer.append(["N", p[1]])
+                else:
+                    lista.append("N")
+            if p[2] and self.uu != "O":
+                if p[2].id == 4 or p[2].id == 3:
+                    fer.append(["O", p[2]])
+                else:
+                    lista.append("O")
+            if p[3] and self.uu != "S":
+                if p[3].id == 4 or p[3].id == 3:
+                    fer.append(["S", p[3]])
+                else:
+                    lista.append("S")
+
+            for f in fer:
+                if f[1].rastro < r_min:
+                    r_min = f[1].rastro
+                    f_min = f
+
+            if f_min:
+                self.mover(f_min[0])
+            else:
+                d = random.sample(lista, k=1)[-1]
+                if d == "E":
+                    self.uu = "O"
+                if d == "N":
+                    self.uu = "S"
+                if d == "O":
+                    self.uu = "E"
+                if d == "S":
+                    self.uu = "N"
+
+                self.mover(d)
 
     def percibir(self):
         x = self.coord[0]//obj_size
@@ -236,19 +267,15 @@ class SerVivo(Materia):
         if direccion == "E":
             self.coord[0] += self.vel
             # lugar visitado, subir contador en el mapa
-            self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
         if direccion == "N":
             self.coord[1] -= self.vel
             # lugar visitado, subir contador en el mapa
-            self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
         if direccion == "O":
             self.coord[0] -= self.vel
             # lugar visitado, subir contador en el mapa
-            self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
         if direccion == "S":
             self.coord[1] += self.vel
             # lugar visitado, subir contador en el mapa
-            self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
 
     def accion(self, evento):
         p = self.percibir()
