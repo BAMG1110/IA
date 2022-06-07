@@ -34,7 +34,7 @@ if __name__ == "__main__":
                         mabby.defOrigen()
                     elif key == pygame.K_p:
                         meta = Todo.defMeta()
-                        meta.generarRastro(6)
+                        meta.generarRastro(10)
                     else:
                         mabby.accion(key)
                 except:

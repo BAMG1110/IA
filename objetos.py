@@ -195,6 +195,10 @@ class SerVivo(Materia):
             r_min = 1000
             f_min = None
             p = self.percibir()
+            
+            if p[4].id == 3:
+                self.moving = False
+                return 0
 
             if p[0] and self.uu != "E":
                 if p[0].id == 4 or p[0].id == 3:
@@ -223,6 +227,15 @@ class SerVivo(Materia):
                     f_min = f
 
             if f_min:
+                if f_min[0] == "E":
+                    self.uu = "O"
+                if f_min[0] == "N":
+                    self.uu = "S"
+                if f_min[0] == "O":
+                    self.uu = "E"
+                if f_min[0] == "S":
+                    self.uu = "N"
+
                 self.mover(f_min[0])
             else:
                 d = random.sample(lista, k=1)[-1]
@@ -240,9 +253,10 @@ class SerVivo(Materia):
     def percibir(self):
         x = self.coord[0]//obj_size
         y = self.coord[1]//obj_size
+        pos_actual = Todo.objetos[y][x]
 
         b = checkBorders(self.coord)
-        percibido = [None, None, None, None]
+        percibido = [None, None, None, None, pos_actual]
 
         if b[0]:
             E = Todo.objetos[y][x+1]
