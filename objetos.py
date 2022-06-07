@@ -84,52 +84,20 @@ class Materia():
         
         p = checkAround(coord)
         z = []
+        for i in range(4):
+            if self.rastro < rango:
+                if p[i]:
+                    if p[i].id == 0:
+                        # calcular intensidad segun el origen, Manhattan distance
+                        intensidad = (abs(p[i].coord[0] - origen[0]) + abs(p[i].coord[1] - origen[1])) // obj_size
+                        c = (120/rango)*intensidad
+                        color = tuple([0, 130-c, 0])
+                        temp = feromona(4, name = "feromona", color = color, coord = p[i].coord, rastro = intensidad, origen = origen)
+                        Todo.agregarObjeto(temp)
+                        z.append(temp)
 
-        if self.rastro < rango:
-            # Este
-            if p[0]:
-                if p[0].id == 0:
-                    # calcular intensidad segun el origen, Manhattan distance
-                    intensidad = (abs(p[0].coord[0] - origen[0]) + abs(p[0].coord[1] - origen[1])) // obj_size
-                    c = (120/rango)*intensidad
-                    color = tuple([0, 130, 0])
-                    temp = feromona(4, name = "feromona", color = color, coord = p[0].coord, rastro = intensidad, origen = origen)
-                    Todo.agregarObjeto(temp)
-                    z.append(temp)
-            # Norte
-            if p[1]:
-                if p[1].id == 0:
-                    # calcular intensidad segun el origen, Manhattan distance
-                    intensidad = (abs(p[1].coord[0] - origen[0]) + abs(p[1].coord[1] - origen[1])) // obj_size
-                    c = (120/rango)*intensidad
-                    color = tuple([0, 130, 0])
-                    temp = feromona(4, name = "feromona", color = color, coord = p[1].coord, rastro = intensidad, origen = origen)
-                    Todo.agregarObjeto(temp)
-                    z.append(temp)
-            # Oeste
-            if p[2]:
-                if p[2].id == 0:
-                    # calcular intensidad segun el origen, Manhattan distance
-                    intensidad = (abs(p[2].coord[0] - origen[0]) + abs(p[2].coord[1] - origen[1])) // obj_size
-                    c = (120/rango)*intensidad
-                    color = tuple([0, 130, 0])
-                    temp = feromona(4, name = "feromona", color = color, coord = p[2].coord, rastro = intensidad, origen = origen)
-                    Todo.agregarObjeto(temp)
-                    z.append(temp)
-            # Sur
-            if p[3]:
-                if p[3].id == 0:
-                    # calcular intensidad segun el origen, Manhattan distance
-                    intensidad = (abs(p[3].coord[0] - origen[0]) + abs(p[3].coord[1] - origen[1])) // obj_size
-                    c = (120/rango)*intensidad
-                    color = tuple([0, 130, 0])
-                    temp = feromona(4, name = "feromona", color = color, coord = p[3].coord, rastro = intensidad, origen = origen)
-                    Todo.agregarObjeto(temp)
-                    z.append(temp)
-
-            for ad in z:
-                print(ad.rastro)
-                ad.generarRastro(rango, origen)
+                for ad in z:
+                    ad.generarRastro(rango, origen)
 
 
 class Todo:
@@ -154,23 +122,16 @@ class Todo:
 
     @classmethod
     def defMeta(cls):
-        x,y = pygame.mouse.get_pos()
-        pos = [(x//obj_size)*obj_size, (y//obj_size)*obj_size]
+        x, y = cls.mouse()
+        for fila in cls.objetos:
+            for obj in fila:
+                if obj.id == 3:
+                    cls.objetos[obj.coord[1]//obj_size][obj.coord[0]//obj_size] = Materia(0, "Nada", (0,0,0), [obj.coord[0], obj.coord[1]])
+                if obj.id == 4:
+                    cls.objetos[obj.coord[1]//obj_size][obj.coord[0]//obj_size] = Materia(0, "Nada", (0,0,0), [obj.coord[0], obj.coord[1]])
 
-        if cls.meta_actual != pos:
-            try:
-                cls.eliminarObjeto(cls.meta_actual)
-                for obj in cls.objetos:
-                    for ob in obj:
-                        try:
-                            if ob.id == 4:
-                                cls.eliminarObjeto(ob.coord)
-                        except:
-                            pass
-            except:
-                pass
-            cls.meta_actual = pos
-        return Materia(3, "comida", (0,254,0), cls.meta_actual)
+        cls.objetos[y//obj_size][x//obj_size] = Materia(3, "Meta", (0,255,0), [x, y])
+        return cls.objetos[y//obj_size][x//obj_size]
         
     @classmethod
     def draw(cls, todo):
@@ -201,6 +162,8 @@ class Todo:
             cls.agregarObjeto(obj)
         elif pygame.mouse.get_pressed()[2] == True:
             cls.eliminarObjeto(pos)
+
+        return pos
 
      
 class SerVivo(Materia):
@@ -252,19 +215,19 @@ class SerVivo(Materia):
 
         if b[0]:
             E = Todo.objetos[y][x+1]
-            if E.id == 0:
+            if E.id == 0 or E.id == 3 or E.id == 4:
                 percibido[0] = E
         if b[1]:
             N = Todo.objetos[y-1][x]
-            if N.id == 0:
+            if N.id == 0 or N.id == 3 or N.id == 4:
                 percibido[1] = N
         if b[2]:
             O = Todo.objetos[y][x-1]
-            if O.id == 0:
+            if O.id == 0 or O.id == 3 or O.id == 4:
                 percibido[2] = O
         if b[3]:
             S = Todo.objetos[y+1][x]
-            if S.id == 0:
+            if S.id == 0 or S.id == 3 or S.id == 4:
                 percibido[3] = S
         
         return percibido
@@ -286,7 +249,7 @@ class SerVivo(Materia):
             self.coord[1] += self.vel
             # lugar visitado, subir contador en el mapa
             self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
-        
+
     def accion(self, evento):
         p = self.percibir()
         print("@: ", evento, p)
@@ -311,7 +274,6 @@ class SerVivo(Materia):
             else:
                 self.mostrarMapa = True
 
-        
         # mover random
         if evento == pygame.K_SPACE:
             if self.moving:
