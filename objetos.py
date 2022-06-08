@@ -167,9 +167,9 @@ class Todo:
 
      
 class SerVivo(Materia):
-    def __init__(self, id, name, color, coord, mapa = generarMatriz()):
+    def __init__(self, id, name, color, coord):
         super().__init__(id, name, color, coord)
-        self.mapa = mapa
+        self.mapa = self.generarMapa()
         self.mostrarMapa = False
         self.moving = False
         self.vel = obj_size
@@ -180,6 +180,17 @@ class SerVivo(Materia):
         x,y = pygame.mouse.get_pos()
         pos = [(x//obj_size)*obj_size, (y//obj_size)*obj_size]
         self.coord = pos
+
+    def generarMapa(self):
+        matriz = []
+        for i in range(map_width//obj_size):
+            fila = []
+            for j in range(map_height//obj_size):
+                fila.append(0)
+            matriz.append(fila)
+        
+        return matriz
+
 
     def verMapa(self, ventana):
         for i in range(len(self.mapa)):
@@ -280,16 +291,16 @@ class SerVivo(Materia):
     def mover(self, direccion):
         if direccion == "E":
             self.coord[0] += self.vel
-            # lugar visitado, subir contador en el mapa
+            self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
         if direccion == "N":
             self.coord[1] -= self.vel
-            # lugar visitado, subir contador en el mapa
+            self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
         if direccion == "O":
             self.coord[0] -= self.vel
-            # lugar visitado, subir contador en el mapa
+            self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
         if direccion == "S":
             self.coord[1] += self.vel
-            # lugar visitado, subir contador en el mapa
+            self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
 
     def accion(self, evento):
         p = self.percibir()
@@ -329,12 +340,12 @@ class feromona(Materia):
         self.rastro = rastro
         self.origen = origen
 
-    def draw(self, ventana):
-        Font=pygame.font.SysFont('timesnewroman',  15)
-        l=Font.render(str(self.rastro), False, (254,254,254), self.color)
-        x = self.coord[0] + (obj_size / 4)
-        y = self.coord[1] + (obj_size / 4)
+    # def draw(self, ventana):
+    #     Font=pygame.font.SysFont('timesnewroman',  15)
+    #     l=Font.render(str(self.rastro), False, (254,254,254), self.color)
+    #     x = self.coord[0] + (obj_size / 4)
+    #     y = self.coord[1] + (obj_size / 4)
 
-        size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
-        pygame.draw.rect(ventana, self.color, size)
-        ventana.blit(l, (x, y))
+    #     size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
+    #     pygame.draw.rect(ventana, self.color, size)
+    #     ventana.blit(l, (x, y))
