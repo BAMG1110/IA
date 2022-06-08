@@ -201,65 +201,38 @@ class SerVivo(Materia):
     
     def movRandom(self):
         if self.moving:
-            lista = []
+            lista_dir = []
             fer = []
             r_min = 1000
             f_min = None
             p = self.percibir()
             
             if p[4].id == 3:
+                # mover a mabby al origen
                 self.moving = False
                 return 0
 
             if p[0] and self.uu != "E":
-                if p[0].id == 4 or p[0].id == 3:
-                    fer.append(["E", p[0]])
-                else:
-                    lista.append("E")
+                lista_dir.append(["E", p[0]])
             if p[1] and self.uu != "N":
-                if p[1].id == 4 or p[1].id == 3:
-                    fer.append(["N", p[1]])
-                else:
-                    lista.append("N")
+                lista_dir.append(["N", p[1]])
             if p[2] and self.uu != "O":
-                if p[2].id == 4 or p[2].id == 3:
-                    fer.append(["O", p[2]])
-                else:
-                    lista.append("O")
+                lista_dir.append(["O", p[2]])
             if p[3] and self.uu != "S":
-                if p[3].id == 4 or p[3].id == 3:
-                    fer.append(["S", p[3]])
-                else:
-                    lista.append("S")
+                lista_dir.append(["S", p[3]])
 
-            for f in fer:
-                if f[1].rastro < r_min:
-                    r_min = f[1].rastro
-                    f_min = f
+            d = random.sample(lista_dir, k=1)[-1]
 
-            if f_min:
-                if f_min[0] == "E":
-                    self.uu = "O"
-                if f_min[0] == "N":
-                    self.uu = "S"
-                if f_min[0] == "O":
-                    self.uu = "E"
-                if f_min[0] == "S":
-                    self.uu = "N"
+            if d[0] == "E":
+                self.uu = "O"
+            if d[0] == "N":
+                self.uu = "S"
+            if d[0] == "O":
+                self.uu = "E"
+            if d[0] == "S":
+                self.uu = "N"
 
-                self.mover(f_min[0])
-            else:
-                d = random.sample(lista, k=1)[-1]
-                if d == "E":
-                    self.uu = "O"
-                if d == "N":
-                    self.uu = "S"
-                if d == "O":
-                    self.uu = "E"
-                if d == "S":
-                    self.uu = "N"
-
-                self.mover(d)
+            self.mover(d[0])
 
     def percibir(self):
         x = self.coord[0]//obj_size
