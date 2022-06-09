@@ -29,12 +29,10 @@ if __name__ == "__main__":
                 try:
                     key = getattr(e, 'key')
                     if key == pygame.K_m:
-                        Todo.verObjetos()
-                    elif key == pygame.K_o:
-                        mabby.defOrigen()
+                        Todo.verMatrizObjetos()
                     elif key == pygame.K_p:
                         meta = Todo.defMeta()
-                        meta.generarRastro(10)
+                        meta.generarRastro(rango_rastro)
                     else:
                         mabby.accion(key)
                 except:
