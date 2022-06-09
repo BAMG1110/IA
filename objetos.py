@@ -174,6 +174,7 @@ class SerVivo(Materia):
         self.moving = False
         self.vel = obj_size
         self.uu = ""
+        self.iter_count = 0
 
     def defOrigen(self):
         Todo.eliminarObjeto(self.coord)
@@ -200,39 +201,76 @@ class SerVivo(Materia):
                 ventana.blit(l, (i*obj_size + (obj_size / 4), j*obj_size + (obj_size / 4)))
     
     def movRandom(self):
-        if self.moving:
-            lista_dir = []
-            fer = []
-            r_min = 1000
-            f_min = None
-            p = self.percibir()
-            
-            if p[4].id == 3:
-                # mover a mabby al origen
+        lista_dir = []
+        p = self.percibir()
+        
+        if p[4].id == 3:
+            # mover a mabby al origen
+            print(self.iter_count)
+            self.coord = [160, 160]
+            self.iter_count += 1
+            if self.iter_count == 10:
+                self.mostrarMapa = True
                 self.moving = False
-                return 0
+            return 0
 
-            if p[0] and self.uu != "E":
-                lista_dir.append(["E", p[0]])
-            if p[1] and self.uu != "N":
-                lista_dir.append(["N", p[1]])
-            if p[2] and self.uu != "O":
-                lista_dir.append(["O", p[2]])
-            if p[3] and self.uu != "S":
-                lista_dir.append(["S", p[3]])
+        if p[0] and self.uu != "E":
+            lista_dir.append(["E", p[0]])
+        if p[1] and self.uu != "N":
+            lista_dir.append(["N", p[1]])
+        if p[2] and self.uu != "O":
+            lista_dir.append(["O", p[2]])
+        if p[3] and self.uu != "S":
+            lista_dir.append(["S", p[3]])
 
-            d = random.sample(lista_dir, k=1)[-1]
+        d = random.sample(lista_dir, k=1)[-1]
 
-            if d[0] == "E":
-                self.uu = "O"
-            if d[0] == "N":
-                self.uu = "S"
-            if d[0] == "O":
-                self.uu = "E"
-            if d[0] == "S":
-                self.uu = "N"
+        if d[0] == "E":
+            self.uu = "O"
+        if d[0] == "N":
+            self.uu = "S"
+        if d[0] == "O":
+            self.uu = "E"
+        if d[0] == "S":
+            self.uu = "N"
 
-            self.mover(d[0])
+        self.mover(d[0])
+
+    def seguir_camino(self):
+        lista_dir = []
+        p = self.percibir()
+        
+        if p[4].id == 3:
+            # mover a mabby al origen
+            print(self.iter_count)
+            self.coord = [160, 160]
+            self.iter_count += 1
+            if self.iter_count == 50:
+                self.mostrarMapa = True
+                self.moving = False
+            return 0
+
+        if p[0] and self.uu != "E":
+            lista_dir.append(["E", p[0]])
+        if p[1] and self.uu != "N":
+            lista_dir.append(["N", p[1]])
+        if p[2] and self.uu != "O":
+            lista_dir.append(["O", p[2]])
+        if p[3] and self.uu != "S":
+            lista_dir.append(["S", p[3]])
+
+        d = random.sample(lista_dir, k=1)[-1]
+
+        if d[0] == "E":
+            self.uu = "O"
+        if d[0] == "N":
+            self.uu = "S"
+        if d[0] == "O":
+            self.uu = "E"
+        if d[0] == "S":
+            self.uu = "N"
+
+        self.mover(d[0])
 
     def percibir(self):
         x = self.coord[0]//obj_size

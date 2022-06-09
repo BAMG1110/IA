@@ -9,14 +9,15 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
 
     # objetos
-    mabby = SerVivo(id=1, name="mabby", color=(255,0,255), coord=[0, 0])
+    mabby = SerVivo(id=1, name="mabby", color=(255,0,255), coord=[160, 160])
+    print(obj_size)
 
     ventana.fill((0,0,0))
 
     while run:
         # time delay _& fps
-        pygame.time.delay(60)
-        clock.tick(30)
+        # pygame.time.delay(2)
+        # clock.tick(Todo.clock_tick)
 
         # eventos
         for e in pygame.event.get():
@@ -52,6 +53,9 @@ if __name__ == "__main__":
         mabby.draw(ventana)
         if mabby.mostrarMapa:
             mabby.verMapa(ventana)
+
+        # if mabby.seguir_camino:
+        #     mabby.seguir_camino()
         
         if mabby.moving:
             mabby.movRandom()
