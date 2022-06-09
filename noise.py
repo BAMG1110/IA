@@ -51,11 +51,11 @@ if __name__ == "__main__":
 
         Todo.draw(ventana)
         mabby.draw(ventana)
-        if mabby.mostrarMapa:
+        if mabby.mostrar_mapa:
             mabby.verMapa(ventana)
 
-        # if mabby.seguir_camino:
-        #     mabby.seguir_camino()
+        if mabby.seguir_camino:
+            mabby.seguirCamino()
         
         if mabby.moving:
             mabby.movRandom()

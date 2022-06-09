@@ -170,8 +170,9 @@ class SerVivo(Materia):
     def __init__(self, id, name, color, coord):
         super().__init__(id, name, color, coord)
         self.mapa = self.generarMapa()
-        self.mostrarMapa = False
+        self.mostrar_mapa = False
         self.moving = False
+        self.seguir_camino = False
         self.vel = obj_size
         self.uu = ""
         self.iter_count = 0
@@ -209,9 +210,11 @@ class SerVivo(Materia):
             print(self.iter_count)
             self.coord = [160, 160]
             self.iter_count += 1
-            if self.iter_count == 10:
-                self.mostrarMapa = True
+            if self.iter_count == 100:
+                self.uu = ""
+                self.mostrar_mapa = True
                 self.moving = False
+                self.seguir_camino = True
             return 0
 
         if p[0] and self.uu != "E":
@@ -236,41 +239,38 @@ class SerVivo(Materia):
 
         self.mover(d[0])
 
-    def seguir_camino(self):
+    def seguirCamino(self):
         lista_dir = []
         p = self.percibir()
-        
+        temp = 0
         if p[4].id == 3:
-            # mover a mabby al origen
-            print(self.iter_count)
-            self.coord = [160, 160]
-            self.iter_count += 1
-            if self.iter_count == 50:
-                self.mostrarMapa = True
-                self.moving = False
+            self.seguir_camino = False
             return 0
 
         if p[0] and self.uu != "E":
-            lista_dir.append(["E", p[0]])
+            lista_dir.append(["E", self.mapa[p[0].coord[1]//obj_size][p[0].coord[0]//obj_size]])
         if p[1] and self.uu != "N":
-            lista_dir.append(["N", p[1]])
+            lista_dir.append(["N", self.mapa[p[1].coord[1]//obj_size][p[1].coord[0]//obj_size]])
         if p[2] and self.uu != "O":
-            lista_dir.append(["O", p[2]])
+            lista_dir.append(["O", self.mapa[p[2].coord[1]//obj_size][p[2].coord[0]//obj_size]])
         if p[3] and self.uu != "S":
-            lista_dir.append(["S", p[3]])
+            lista_dir.append(["S", self.mapa[p[3].coord[1]//obj_size][p[3].coord[0]//obj_size]])
 
-        d = random.sample(lista_dir, k=1)[-1]
+        temp = lista_dir[-1]
+        for i in range(len(lista_dir)):
+            if temp[1] >= lista_dir[i][1]:
+                temp = lista_dir[i]
 
-        if d[0] == "E":
+        if temp[0] == "E":
             self.uu = "O"
-        if d[0] == "N":
+        if temp[0] == "N":
             self.uu = "S"
-        if d[0] == "O":
+        if temp[0] == "O":
             self.uu = "E"
-        if d[0] == "S":
+        if temp[0] == "S":
             self.uu = "N"
 
-        self.mover(d[0])
+        self.mover(temp[0])
 
     def percibir(self):
         x = self.coord[0]//obj_size
@@ -332,10 +332,10 @@ class SerVivo(Materia):
         
         # mapa
         if evento == pygame.K_u:
-            if self.mostrarMapa:
-                self.mostrarMapa = False
+            if self.mostrar_mapa:
+                self.mostrar_mapa = False
             else:
-                self.mostrarMapa = True
+                self.mostrar_mapa = True
 
         # mover random
         if evento == pygame.K_SPACE:
