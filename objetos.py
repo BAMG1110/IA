@@ -93,7 +93,7 @@ class Materia():
                         intensidad = (abs(p[i].coord[0] - origen[0]) + abs(p[i].coord[1] - origen[1])) // obj_size
                         c = (120/rango)*intensidad
                         color = tuple([0, 130-c, 0])
-                        temp = feromona(4, name = "feromona", color = color, coord = p[i].coord, rastro = intensidad, origen = origen)
+                        temp = Feromona(4, name = "feromona", color = color, coord = p[i].coord, rastro = intensidad, origen = origen)
                         Todo.agregarObjeto(temp)
                         z.append(temp)
 
@@ -336,7 +336,7 @@ class SerVivo(Materia):
                 self.moving = True
 
 
-class feromona(Materia):
+class Feromona(Materia):
     def __init__(self, id, name, color, coord, rastro, origen):
         super().__init__(id, name, color, coord)
         self.rastro = rastro
@@ -351,3 +351,42 @@ class feromona(Materia):
     #     size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
     #     pygame.draw.rect(ventana, self.color, size)
     #     ventana.blit(l, (x, y))
+
+def Clon(Materia):
+    def __init__(self, id, name, color, coord, direccion):
+        super().__init__(id, name, color, coord)
+        self.direccion = direccion
+        self.percibido = []
+    
+        def percibir(self):
+            x = self.coord[0]//obj_size
+            y = self.coord[1]//obj_size
+
+            b = checkBorders(self.coord)
+            percibido = [None, None, None, None]
+
+            if b[0]:
+                if self.direccion == "E" or self.direccion == "S"
+                    E = Todo.objetos[y][x+1]
+                    if E.id == 0 or E.id == 3 or E.id == 4:
+                        percibido[0] = E
+            if b[1]:
+                if self.direccion == "N" or self.direccion == "E"
+                    N = Todo.objetos[y-1][x]
+                    if N.id == 0 or N.id == 3 or N.id == 4:
+                        percibido[1] = N
+            if b[2]:
+                if self.direccion == "O" or self.direccion == "N"
+                    O = Todo.objetos[y][x-1]
+                    if O.id == 0 or O.id == 3 or O.id == 4:
+                        percibido[2] = O
+            if b[3]:
+                if self.direccion == "S" or self.direccion == "O"
+                    S = Todo.objetos[y+1][x]
+                    if S.id == 0 or S.id == 3 or S.id == 4:
+                        percibido[3] = S
+            
+            return percibido
+
+    def mejorCamino(self):
+        pass
