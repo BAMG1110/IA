@@ -243,6 +243,7 @@ class SerVivo(Materia):
         lista_dir = []
         p = self.percibir()
         temp = 0
+
         if p[4].id == 3:
             self.seguir_camino = False
             return 0
@@ -257,8 +258,12 @@ class SerVivo(Materia):
             lista_dir.append(["S", self.mapa[p[3].coord[1]//obj_size][p[3].coord[0]//obj_size]])
 
         temp = lista_dir[-1]
+
         for i in range(len(lista_dir)):
-            if temp[1] >= lista_dir[i][1]:
+            if p[i].id == 3:
+                temp = lista_dir[i]
+                break
+            elif temp[1] >= lista_dir[i][1]:
                 temp = lista_dir[i]
 
         if temp[0] == "E":
