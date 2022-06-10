@@ -250,21 +250,32 @@ class SerVivo(Materia):
 
         if p[0] and self.uu != "E":
             lista_dir.append(["E", self.mapa[p[0].coord[1]//obj_size][p[0].coord[0]//obj_size]])
+        else:
+            lista_dir.append(None)
         if p[1] and self.uu != "N":
             lista_dir.append(["N", self.mapa[p[1].coord[1]//obj_size][p[1].coord[0]//obj_size]])
+        else:
+            lista_dir.append(None)
         if p[2] and self.uu != "O":
             lista_dir.append(["O", self.mapa[p[2].coord[1]//obj_size][p[2].coord[0]//obj_size]])
+        else:
+            lista_dir.append(None)
         if p[3] and self.uu != "S":
             lista_dir.append(["S", self.mapa[p[3].coord[1]//obj_size][p[3].coord[0]//obj_size]])
+        else:
+            lista_dir.append(None)
 
         temp = lista_dir[-1]
-
+        print(f"p: {p} l: {lista_dir}")
         for i in range(len(lista_dir)):
-            if p[i].id == 3:
-                temp = lista_dir[i]
-                break
-            elif temp[1] >= lista_dir[i][1]:
-                temp = lista_dir[i]
+            if p[i]:
+                if p[i].id == 3:
+                    temp = lista_dir[i]
+                    break
+            
+            if lista_dir[i]:
+                if temp[1] >= lista_dir[i][1]:
+                    temp = lista_dir[i]
 
         if temp[0] == "E":
             self.uu = "O"
