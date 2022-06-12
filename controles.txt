@@ -1,12 +1,12 @@
-u: ver mapa
+wasd: movimiento
+
+u: ver mapa (muestra los lugares en los que el agente ya ha estado)
 i: informacion del agente
-o: origen
-p: destino
+o: cambia la ubicacion del agente a donde se encuentra el mouse
+p: define las coordenadas de la meta
 c: aumentar percepcion
 
 m: ver objetos
-wasd: movimiento
-
 
 ID
 
@@ -15,6 +15,4 @@ ID
 2: obstaculo
 3: Meta
 4: feromona
-        
-
-
+5: clon
