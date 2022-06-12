@@ -1,11 +1,11 @@
-u: ver mapa
-i: informacion del agente
-o: origen
-p: destino
-
-m: ver objetos
 wasd: movimiento
 
+u: ver mapa (muestra los lugares en los que el agente ya ha estado)
+i: informacion del agente
+o: cambia la ubicacion del agente a donde se encuentra el mouse
+p: define las coordenadas de la meta
+
+m: ver matriz de objetos en el entorno, de esta matriz se renderiza lo que se ve en pantalla
 
 ID
 
@@ -14,38 +14,6 @@ ID
 2: obstaculo
 3: Meta
 4: feromona
-
-
-
-Clases
-
-Todo:
-    clase estatica, contiene todo lo que esta en el entorno (menos del agente)
-    CRUD: metodos para agregar, ver, actualizar y eliminar objetos en el mapa
-
-Materia
-    draw:
-        renderiza el objeto en pantalla
-    descripcion:
-        muestra informacion del objeto
-
-SerVivo(Materia)
-    ver mapa:
-        muestra en consola el mapa del agente, este contine por donde ya ha pasado
-
-    check borders:
-        define cuales son los limites del mapa y compara con las coordenadas del agente
-
-    mov random:
-        de manera aleatoria elige un eje y direccion al cual moverse
-        (eje: x, y, dir: -1, 1)
-
-    accion:
-        recibe la entrada del usuario. segun la entrada se realiza una accion
-        acciones:
-            - movimiento wasd
-            - descripcion del agente
-            - ver mapa del agente
         
 
 
