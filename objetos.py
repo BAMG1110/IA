@@ -5,6 +5,7 @@ pygame.font.init()
 map_width = 640
 map_height = 640
 obj_size = 32
+iteraciones = 100
 
 
 def checkBorders(coord):
@@ -170,15 +171,18 @@ class SerVivo(Materia):
     def __init__(self, id, name, color, coord):
         super().__init__(id, name, color, coord)
         self.mapa = self.generarMapa()
-        self.mostrar_mapa = False
-        self.moving = False
-        self.seguir_camino = False
+
         self.vel = obj_size
         self.uu = ""
         self.iter_count = 0
+        self.origen = [0, 0]
+
+        self.mostrar_mapa = False
+        self.moving = False
+        self.seguir_camino = False
+        
 
     def defOrigen(self):
-        Todo.eliminarObjeto(self.coord)
         x,y = pygame.mouse.get_pos()
         pos = [(x//obj_size)*obj_size, (y//obj_size)*obj_size]
         self.coord = pos
@@ -192,7 +196,6 @@ class SerVivo(Materia):
             matriz.append(fila)
         
         return matriz
-
 
     def verMapa(self, ventana):
         for i in range(len(self.mapa)):
@@ -208,9 +211,9 @@ class SerVivo(Materia):
         if p[4].id == 3:
             # mover a mabby al origen
             print(self.iter_count)
-            self.coord = [160, 160]
             self.iter_count += 1
-            if self.iter_count == 100:
+            self.coord = [160, 160]
+            if self.iter_count == iteraciones:
                 self.uu = ""
                 self.mostrar_mapa = True
                 self.moving = False
@@ -246,6 +249,7 @@ class SerVivo(Materia):
 
         if p[4].id == 3:
             self.seguir_camino = False
+            self.iter_count = 0
             return 0
 
         if p[0] and self.uu != "E":
@@ -265,16 +269,17 @@ class SerVivo(Materia):
         else:
             lista_dir.append(None)
 
-        temp = lista_dir[-1]
-        print(f"p: {p} l: {lista_dir}")
-        for i in range(len(lista_dir)):
-            if p[i]:
+        for t in lista_dir:
+            if t:
+                temp = t
+                break
+
+        for i in range(4):
+            if lista_dir[i]:
                 if p[i].id == 3:
                     temp = lista_dir[i]
                     break
-            
-            if lista_dir[i]:
-                if temp[1] >= lista_dir[i][1]:
+                elif temp[1] > lista_dir[i][1]:
                     temp = lista_dir[i]
 
         if temp[0] == "E":
@@ -342,16 +347,20 @@ class SerVivo(Materia):
         if evento == pygame.K_s and p[3]:
             self.mover("S")
 
-        # descripcion
-        if evento == pygame.K_i:
-            self.descripcion
-        
         # mapa
         if evento == pygame.K_u:
             if self.mostrar_mapa:
                 self.mostrar_mapa = False
             else:
                 self.mostrar_mapa = True
+        
+        # descripcion
+        if evento == pygame.K_i:
+            self.descripcion
+        
+        # definir punto de origen
+        if evento == pygame.K_o:
+            self.defOrigen()
 
         # mover random
         if evento == pygame.K_SPACE:

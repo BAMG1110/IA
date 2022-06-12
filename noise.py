@@ -31,8 +31,6 @@ if __name__ == "__main__":
                     key = getattr(e, 'key')
                     if key == pygame.K_m:
                         Todo.verObjetos()
-                    elif key == pygame.K_o:
-                        mabby.defOrigen()
                     elif key == pygame.K_p:
                         meta = Todo.defMeta()
                         meta.generarRastro(10)
