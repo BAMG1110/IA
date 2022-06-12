@@ -114,6 +114,12 @@ class Todo:
     def eliminarObjeto(cls, pos):
         x, y = pos[0], pos[1]
         cls.objetos[y//obj_size][x//obj_size] = Materia(0, "Nada", (0,0,0), [x, y])
+    
+    @classmethod
+    def verObjeto(cls):
+        x,y = Todo.mouse()
+        obj = cls.objetos[y//obj_size][x//obj_size]
+        print(obj.descripcion)
 
     @classmethod
     def verMatrizObjetos(cls):
@@ -171,10 +177,14 @@ class SerVivo(Materia):
     def __init__(self, id, name, color, coord):
         super().__init__(id, name, color, coord)
         self.mapa = self.generarMapa()
-        self.mostrarMapa = False
-        self.moving = False
+        self.clones = []
+
         self.vel = obj_size
         self.uu = ""
+
+        self.mostrarMapa = False
+        self.moving = False
+        self.aumentarPercepcion = False
 
     def defOrigen(self):
         x,y = Todo.mouse()
@@ -247,17 +257,21 @@ class SerVivo(Materia):
 
             self.mover(fer_min[0])
         else:
-            d = random.sample(lista, k=1)[-1]
-            if d == "E":
-                self.uu = "O"
-            if d == "N":
-                self.uu = "S"
-            if d == "O":
-                self.uu = "E"
-            if d == "S":
-                self.uu = "N"
+            try:
+                d = random.sample(lista, k=1)[-1]
+                if d == "E":
+                    self.uu = "O"
+                if d == "N":
+                    self.uu = "S"
+                if d == "O":
+                    self.uu = "E"
+                if d == "S":
+                    self.uu = "N"
 
-            self.mover(d)
+                self.mover(d)
+            except:
+                print("el unico camino es por donde vengo...")
+                self.uu = ""
 
     def percibir(self):
         x = self.coord[0]//obj_size
@@ -300,6 +314,27 @@ class SerVivo(Materia):
             self.coord[1] += self.vel
             self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
 
+    def generarClones(self):
+        self.clones = []
+        chka = checkAround(self.coord)
+
+        if chka[0]:
+            if chka[0].id != 2:
+                E = Clon(id=5, name="Clon", color=(254,254,0), coord=[(self.coord[0]+obj_size),(self.coord[1])], direccion="E")
+                self.clones.append(E)
+        if chka[1]:
+            if chka[1].id != 2:
+                N = Clon(id=5, name="Clon", color=(254,254,0), coord=[(self.coord[0]),(self.coord[1]-obj_size)], direccion="E")
+                self.clones.append(N)
+        if chka[2]:
+            if chka[2].id != 2:
+                O = Clon(id=5, name="Clon", color=(254,254,0), coord=[(self.coord[0]-obj_size),(self.coord[1])], direccion="E")
+                self.clones.append(O)
+        if chka[3]:
+            if chka[3].id != 2:
+                S = Clon(id=5, name="Clon", color=(254,254,0), coord=[(self.coord[0]),(self.coord[1]+obj_size)], direccion="E")
+                self.clones.append(S)
+
     def accion(self, evento):
         p = self.percibir()
         print("@: ", evento, p)
@@ -328,6 +363,14 @@ class SerVivo(Materia):
         if evento == pygame.K_o:
             self.defOrigen()
 
+        # aumentar percepcion
+        if evento == pygame.K_c:
+            if self.aumentarPercepcion:
+                self.aumentarPercepcion = False
+            else:
+                self.aumentarPercepcion = True
+
+
         # mover random
         if evento == pygame.K_SPACE:
             if self.moving:
@@ -352,41 +395,40 @@ class Feromona(Materia):
     #     pygame.draw.rect(ventana, self.color, size)
     #     ventana.blit(l, (x, y))
 
-def Clon(Materia):
+class Clon(Materia):
     def __init__(self, id, name, color, coord, direccion):
         super().__init__(id, name, color, coord)
         self.direccion = direccion
         self.percibido = []
     
-        def percibir(self):
-            x = self.coord[0]//obj_size
-            y = self.coord[1]//obj_size
+    #     def percibir(self):
+    #         x = self.coord[0]//obj_size
+    #         y = self.coord[1]//obj_size
 
-            b = checkBorders(self.coord)
-            percibido = [None, None, None, None]
+    #         b = checkBorders(self.coord)
+    #         percibido = [None, None, None, None]
 
-            if b[0]:
-                if self.direccion == "E" or self.direccion == "S"
-                    E = Todo.objetos[y][x+1]
-                    if E.id == 0 or E.id == 3 or E.id == 4:
-                        percibido[0] = E
-            if b[1]:
-                if self.direccion == "N" or self.direccion == "E"
-                    N = Todo.objetos[y-1][x]
-                    if N.id == 0 or N.id == 3 or N.id == 4:
-                        percibido[1] = N
-            if b[2]:
-                if self.direccion == "O" or self.direccion == "N"
-                    O = Todo.objetos[y][x-1]
-                    if O.id == 0 or O.id == 3 or O.id == 4:
-                        percibido[2] = O
-            if b[3]:
-                if self.direccion == "S" or self.direccion == "O"
-                    S = Todo.objetos[y+1][x]
-                    if S.id == 0 or S.id == 3 or S.id == 4:
-                        percibido[3] = S
+    #         if b[0] and self.direccion != "O":
+    #             E = Todo.objetos[y][x+1]
+    #             if E.id == 0 or E.id == 3 or E.id == 4:
+    #                 percibido[0] = E
+    #         if b[1] and self.direccion != "S":
+    #             N = Todo.objetos[y-1][x]
+    #             if N.id == 0 or N.id == 3 or N.id == 4:
+    #                 percibido[1] = N
+                
+    #         if b[2] and self.direccion != "E":
+    #             O = Todo.objetos[y][x-1]
+    #             if O.id == 0 or O.id == 3 or O.id == 4:
+    #                 percibido[2] = O
+                
+    #         if b[3] and self.direccion != "N":
+    #             S = Todo.objetos[y+1][x]
+    #             if S.id == 0 or S.id == 3 or S.id == 4:
+    #                 percibido[3] = S
+                
             
-            return percibido
+    #         return percibido
 
-    def mejorCamino(self):
-        pass
+    # def mejorCamino(self):
+    #     print()

@@ -30,6 +30,8 @@ if __name__ == "__main__":
                     key = getattr(e, 'key')
                     if key == pygame.K_m:
                         Todo.verMatrizObjetos()
+                    elif key == pygame.K_n:
+                        Todo.verObjeto()
                     elif key == pygame.K_p:
                         meta = Todo.defMeta()
                         meta.generarRastro(rango_rastro)
@@ -47,12 +49,20 @@ if __name__ == "__main__":
         ventana.fill((0,0,0))
 
         Todo.draw(ventana)
+
+        if mabby.aumentarPercepcion:
+            mabby.generarClones()
+            for c in mabby.clones:
+                c.draw(ventana)
+
         mabby.draw(ventana)
+        
         if mabby.mostrarMapa:
             mabby.verMapa(ventana)
         
         if mabby.moving:
             mabby.movRandom()
+
 
         Todo.drawGrid(ventana)
         
