@@ -5,7 +5,7 @@ pygame.font.init()
 map_width       = 640
 map_height      = 640
 obj_size        = 32
-rango_rastro    = 25
+rango_rastro    = 8
 
 
 def checkBorders(coord):
@@ -184,7 +184,7 @@ class SerVivo(Materia):
 
         self.mostrarMapa = False
         self.moving = False
-        self.aumentarPercepcion = False
+        self.PA = False
 
     def defOrigen(self):
         x,y = Todo.mouse()
@@ -215,10 +215,12 @@ class SerVivo(Materia):
         fer_min = None
         p = self.percibir()
         
+        # si mabby esta sobre la meta, detener
         if p[4].id == 3:
             self.moving = False
             return 0
 
+        # posibles movimientos
         if p[0] and self.uu != "E":
             if p[0].id == 4 or p[0].id == 3:
                 fer.append(["E", p[0]])
@@ -240,10 +242,12 @@ class SerVivo(Materia):
             else:
                 lista.append("S")
 
+        # si se detecta un rastro, elegir el mas cercano
         for f in fer:
             if f[1].rastro < r_min:
                 r_min = f[1].rastro
                 fer_min = f
+
 
         if fer_min:
             if fer_min[0] == "E":
@@ -272,6 +276,54 @@ class SerVivo(Materia):
             except:
                 print("el unico camino es por donde vengo...")
                 self.uu = ""
+
+    def movPA(self):
+        temp = 45
+        temp_list = []
+        temp_p = self.percibir()
+
+        # si mabby esta sobre la meta, detener
+        if temp_p[4].id == 3:
+            self.PA = False
+            self.moving = False
+            return 0
+
+        # suma de casillas adyacentes a los clones
+        for c in range(len(self.clones)):
+            p = self.clones[c].percibir()
+            for obj in p:
+                if obj:
+                    if obj.id == 3:
+                        self.mover(self.clones[c].direccion)
+                        return 0
+                    elif obj.id == 4:
+                        self.clones[c].suma += obj.rastro
+                    else:
+                        self.clones[c].suma += (rango_rastro + 1)
+                else:
+                    self.clones[c].suma += (rango_rastro + 1)
+            
+            # obtener los clones con la menor suma
+            if self.clones[c].suma == temp and self.clones[c].direccion != self.uu:
+                temp = self.clones[c].suma
+                temp_list.append(self.clones[c].direccion)
+            elif self.clones[c].suma < temp and self.clones[c].direccion != self.uu:
+                temp = self.clones[c].suma
+                temp_list = [self.clones[c].direccion]
+
+        try:
+            d = random.sample(temp_list, k=1)[-1]
+            if d == "E":
+                self.uu = "O"
+            if d == "N":
+                self.uu = "S"
+            if d == "O":
+                self.uu = "E"
+            if d == "S":
+                self.uu = "N"
+            self.mover(d)
+        except:
+            self.uu = ""
 
     def percibir(self):
         x = self.coord[0]//obj_size
@@ -324,15 +376,15 @@ class SerVivo(Materia):
                 self.clones.append(E)
         if chka[1]:
             if chka[1].id != 2:
-                N = Clon(id=5, name="Clon", color=(254,254,0), coord=[(self.coord[0]),(self.coord[1]-obj_size)], direccion="E")
+                N = Clon(id=5, name="Clon", color=(254,254,0), coord=[(self.coord[0]),(self.coord[1]-obj_size)], direccion="N")
                 self.clones.append(N)
         if chka[2]:
             if chka[2].id != 2:
-                O = Clon(id=5, name="Clon", color=(254,254,0), coord=[(self.coord[0]-obj_size),(self.coord[1])], direccion="E")
+                O = Clon(id=5, name="Clon", color=(254,254,0), coord=[(self.coord[0]-obj_size),(self.coord[1])], direccion="O")
                 self.clones.append(O)
         if chka[3]:
             if chka[3].id != 2:
-                S = Clon(id=5, name="Clon", color=(254,254,0), coord=[(self.coord[0]),(self.coord[1]+obj_size)], direccion="E")
+                S = Clon(id=5, name="Clon", color=(254,254,0), coord=[(self.coord[0]),(self.coord[1]+obj_size)], direccion="S")
                 self.clones.append(S)
 
     def accion(self, evento):
@@ -365,10 +417,10 @@ class SerVivo(Materia):
 
         # aumentar percepcion
         if evento == pygame.K_c:
-            if self.aumentarPercepcion:
-                self.aumentarPercepcion = False
+            if self.PA:
+                self.PA = False
             else:
-                self.aumentarPercepcion = True
+                self.PA = True
 
 
         # mover random
@@ -399,36 +451,35 @@ class Clon(Materia):
     def __init__(self, id, name, color, coord, direccion):
         super().__init__(id, name, color, coord)
         self.direccion = direccion
-        self.percibido = []
+        self.suma = 0
     
-    #     def percibir(self):
-    #         x = self.coord[0]//obj_size
-    #         y = self.coord[1]//obj_size
+    def percibir(self):
+        x = self.coord[0]//obj_size
+        y = self.coord[1]//obj_size
 
-    #         b = checkBorders(self.coord)
-    #         percibido = [None, None, None, None]
+        b = checkBorders(self.coord)
+        percibido = [None, None, None, None, None]
 
-    #         if b[0] and self.direccion != "O":
-    #             E = Todo.objetos[y][x+1]
-    #             if E.id == 0 or E.id == 3 or E.id == 4:
-    #                 percibido[0] = E
-    #         if b[1] and self.direccion != "S":
-    #             N = Todo.objetos[y-1][x]
-    #             if N.id == 0 or N.id == 3 or N.id == 4:
-    #                 percibido[1] = N
-                
-    #         if b[2] and self.direccion != "E":
-    #             O = Todo.objetos[y][x-1]
-    #             if O.id == 0 or O.id == 3 or O.id == 4:
-    #                 percibido[2] = O
-                
-    #         if b[3] and self.direccion != "N":
-    #             S = Todo.objetos[y+1][x]
-    #             if S.id == 0 or S.id == 3 or S.id == 4:
-    #                 percibido[3] = S
-                
+        percibido[4] = Todo.objetos[y][x]
+
+        if b[0] and self.direccion != "O":
+            E = Todo.objetos[y][x+1]
+            if E.id == 0 or E.id == 3 or E.id == 4:
+                percibido[0] = E
+        if b[1] and self.direccion != "S":
+            N = Todo.objetos[y-1][x]
+            if N.id == 0 or N.id == 3 or N.id == 4:
+                percibido[1] = N
             
-    #         return percibido
-
-    # def mejorCamino(self):
-    #     print()
+        if b[2] and self.direccion != "E":
+            O = Todo.objetos[y][x-1]
+            if O.id == 0 or O.id == 3 or O.id == 4:
+                percibido[2] = O
+            
+        if b[3] and self.direccion != "N":
+            S = Todo.objetos[y+1][x]
+            if S.id == 0 or S.id == 3 or S.id == 4:
+                percibido[3] = S
+            
+        
+        return percibido

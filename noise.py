@@ -49,19 +49,22 @@ if __name__ == "__main__":
         ventana.fill((0,0,0))
 
         Todo.draw(ventana)
-
-        if mabby.aumentarPercepcion:
+        
+        if mabby.PA:
             mabby.generarClones()
             for c in mabby.clones:
                 c.draw(ventana)
-
+        
         mabby.draw(ventana)
         
         if mabby.mostrarMapa:
             mabby.verMapa(ventana)
         
         if mabby.moving:
-            mabby.movRandom()
+            if mabby.PA:
+                mabby.movPA()
+            else:
+                mabby.movRandom()
 
 
         Todo.drawGrid(ventana)
