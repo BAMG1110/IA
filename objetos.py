@@ -2,8 +2,8 @@ import pygame, pygame.font
 import random, math
 
 pygame.font.init()
-map_width = 640
-map_height = 640
+map_width = 384
+map_height = 384
 obj_size = 32
 iteraciones = 100
 
@@ -212,7 +212,7 @@ class SerVivo(Materia):
             # mover a mabby al origen
             print(self.iter_count)
             self.iter_count += 1
-            self.coord = [160, 160]
+            self.coord = [0, 0]
             if self.iter_count == iteraciones:
                 self.uu = ""
                 self.mostrar_mapa = True
@@ -229,18 +229,21 @@ class SerVivo(Materia):
         if p[3] and self.uu != "S":
             lista_dir.append(["S", p[3]])
 
-        d = random.sample(lista_dir, k=1)[-1]
+        try:
+            d = random.sample(lista_dir, k=1)[-1]
 
-        if d[0] == "E":
-            self.uu = "O"
-        if d[0] == "N":
-            self.uu = "S"
-        if d[0] == "O":
-            self.uu = "E"
-        if d[0] == "S":
-            self.uu = "N"
+            if d[0] == "E":
+                self.uu = "O"
+            if d[0] == "N":
+                self.uu = "S"
+            if d[0] == "O":
+                self.uu = "E"
+            if d[0] == "S":
+                self.uu = "N"
 
-        self.mover(d[0])
+            self.mover(d[0])
+        except:
+            self.uu = ""
 
     def seguirCamino(self):
         lista_dir = []

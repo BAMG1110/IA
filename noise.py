@@ -9,7 +9,7 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
 
     # objetos
-    mabby = SerVivo(id=1, name="mabby", color=(255,0,255), coord=[160, 160])
+    mabby = SerVivo(id=1, name="mabby", color=(255,0,255), coord=[0, 0])
     print(obj_size)
 
     ventana.fill((0,0,0))
