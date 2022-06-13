@@ -113,7 +113,7 @@ class Todo:
     @classmethod
     def eliminarObjeto(cls, pos):
         x, y = pos[0]//obj_size, pos[1]//obj_size
-        cls.objetos[y][x] = Materia(0, "Nada", (0,0,0), [x, y])
+        cls.objetos[y][x] = Materia(0, "Nada", (0,0,0), [x*obj_size, y*obj_size])
 
     @classmethod
     def verObjetos(cls):
@@ -282,7 +282,7 @@ class SerVivo(Materia):
                 if p[i].id == 3:
                     temp = lista_dir[i]
                     break
-                elif temp[1] > lista_dir[i][1]:
+                elif temp[1] < lista_dir[i][1]:
                     temp = lista_dir[i]
 
         if temp[0] == "E":
