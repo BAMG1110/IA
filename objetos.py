@@ -28,31 +28,40 @@ def checkAround(coord):
     y = coord[1]//obj_size
 
     b = checkBorders(coord)
-    periferia = [None, None, None, None]
+    periferia = [["E", None], ["N", None], ["O", None], ["S", None], ["actual", Todo.objetos[y][x]]]
 
     if b[0]:
-        E = Todo.objetos[y][x+1]
+        E = ["E", Todo.objetos[y][x+1]]
         periferia[0] = E
     if b[1]:
-        N = Todo.objetos[y-1][x]
+        N = ["N", Todo.objetos[y-1][x]]
         periferia[1] = N
     if b[2]:
-        O = Todo.objetos[y][x-1]
+        O = ["O", Todo.objetos[y][x-1]]
         periferia[2] = O
     if b[3]:
-        S = Todo.objetos[y+1][x]
+        S = ["S", Todo.objetos[y+1][x]]
         periferia[3] = S
     
     return periferia
 
-def generarMatriz():
+def generarMatriz(x = None):
     matriz = []
-    for i in range(map_width//obj_size):
-        fila = []
-        for j in range(map_height//obj_size):
-            coordenada = [j*obj_size, i*obj_size]
-            fila.append(Materia(0, "Nada", (0,0,0), coordenada))
-        matriz.append(fila)
+
+    if not(x):
+        for i in range(map_width//obj_size):
+            fila = []
+            for j in range(map_height//obj_size):
+                coordenada = [j*obj_size, i*obj_size]
+                fila.append(Materia(0, "Nada", (0,0,0), coordenada))
+            matriz.append(fila)
+    else:
+        for i in range(map_width//obj_size):
+            fila = []
+            for j in range(map_height//obj_size):
+                coordenada = [j*obj_size, i*obj_size]
+                fila.append(x)
+            matriz.append(fila)
     
     return matriz
 
@@ -87,13 +96,13 @@ class Materia():
         z = []
         for i in range(4):
             if self.rastro < rango:
-                if p[i]:
-                    if p[i].id == 0:
+                if p[i][1]:
+                    if p[i][1].id == 0:
                         # calcular intensidad segun el origen, Manhattan distance
-                        intensidad = (abs(p[i].coord[0] - origen[0]) + abs(p[i].coord[1] - origen[1])) // obj_size
+                        intensidad = (abs(p[i][1].coord[0] - origen[0]) + abs(p[i][1].coord[1] - origen[1])) // obj_size
                         c = (120/rango)*intensidad
                         color = tuple([0, 130-c, 0])
-                        temp = Feromona(4, name = "feromona", color = color, coord = p[i].coord, rastro = intensidad, origen = origen)
+                        temp = Feromona(4, name = "feromona", color = color, coord = p[i][1].coord, rastro = intensidad, origen = origen)
                         Todo.agregarObjeto(temp)
                         z.append(temp)
 
@@ -176,7 +185,7 @@ class Todo:
 class SerVivo(Materia):
     def __init__(self, id, name, color, coord):
         super().__init__(id, name, color, coord)
-        self.mapa = self.generarMapa()
+        self.mapa = generarMatriz(0)
         self.clones = []
 
         self.vel = obj_size
@@ -191,16 +200,6 @@ class SerVivo(Materia):
         pos = [x, y]
         self.coord = pos
 
-    def generarMapa(self):
-        matriz = []
-        for i in range(map_width//obj_size):
-            fila = []
-            for j in range(map_height//obj_size):
-                fila.append(0)
-            matriz.append(fila)
-        
-        return matriz
-
     def verMapa(self, ventana):
         for i in range(len(self.mapa)):
             for j in range(len(self.mapa[0])):
@@ -209,73 +208,58 @@ class SerVivo(Materia):
                 ventana.blit(l, (i*obj_size + (obj_size / 4), j*obj_size + (obj_size / 4)))
     
     def movRandom(self):
-        lista = []
-        fer = []
-        r_min = 1000
-        fer_min = None
-        p = self.percibir()
+        per = self.percibir()
+        pm = []
+        print(f"per {per}")
+
         
         # si mabby esta sobre la meta, detener
-        if p[4].id == 3:
-            self.moving = False
-            return 0
+        # if p[4].id == 3:
+        #     self.moving = False
+        #     return 0
 
         # posibles movimientos
-        if p[0] and self.uu != "E":
-            if p[0].id == 4 or p[0].id == 3:
-                fer.append(["E", p[0]])
-            else:
-                lista.append("E")
-        if p[1] and self.uu != "N":
-            if p[1].id == 4 or p[1].id == 3:
-                fer.append(["N", p[1]])
-            else:
-                lista.append("N")
-        if p[2] and self.uu != "O":
-            if p[2].id == 4 or p[2].id == 3:
-                fer.append(["O", p[2]])
-            else:
-                lista.append("O")
-        if p[3] and self.uu != "S":
-            if p[3].id == 4 or p[3].id == 3:
-                fer.append(["S", p[3]])
-            else:
-                lista.append("S")
+        for l in per:
+            if l[1]:
+                if l[1].id == 4:
+                    pm.append(l)
 
-        # si se detecta un rastro, elegir el mas cercano
-        for f in fer:
-            if f[1].rastro < r_min:
-                r_min = f[1].rastro
-                fer_min = f
+        print(f"pm {pm} {len(pm)}")
+
+        # # si se detecta un rastro, elegir el mas cercano
+        # for f in fer:
+        #     if f[1].rastro < r_min:
+        #         r_min = f[1].rastro
+        #         fer_min = f
 
 
-        if fer_min:
-            if fer_min[0] == "E":
-                self.uu = "O"
-            if fer_min[0] == "N":
-                self.uu = "S"
-            if fer_min[0] == "O":
-                self.uu = "E"
-            if fer_min[0] == "S":
-                self.uu = "N"
+        # if fer_min:
+        #     if fer_min[0] == "E":
+        #         self.uu = "O"
+        #     if fer_min[0] == "N":
+        #         self.uu = "S"
+        #     if fer_min[0] == "O":
+        #         self.uu = "E"
+        #     if fer_min[0] == "S":
+        #         self.uu = "N"
 
-            self.mover(fer_min[0])
-        else:
-            try:
-                d = random.sample(lista, k=1)[-1]
-                if d == "E":
-                    self.uu = "O"
-                if d == "N":
-                    self.uu = "S"
-                if d == "O":
-                    self.uu = "E"
-                if d == "S":
-                    self.uu = "N"
+        #     self.mover(fer_min[0])
+        # else:
+        #     try:
+        #         d = random.sample(lista, k=1)[-1]
+        #         if d == "E":
+        #             self.uu = "O"
+        #         if d == "N":
+        #             self.uu = "S"
+        #         if d == "O":
+        #             self.uu = "E"
+        #         if d == "S":
+        #             self.uu = "N"
 
-                self.mover(d)
-            except:
-                print("el unico camino es por donde vengo...")
-                self.uu = ""
+        #         self.mover(d)
+        #     except:
+        #         print("el unico camino es por donde vengo...")
+        #         self.uu = ""
 
     def movPA(self):
         temp = 45
@@ -326,31 +310,25 @@ class SerVivo(Materia):
             self.uu = ""
 
     def percibir(self):
-        x = self.coord[0]//obj_size
-        y = self.coord[1]//obj_size
-        pos_actual = Todo.objetos[y][x]
+        p = checkAround(self.coord)
 
-        b = checkBorders(self.coord)
-        percibido = [None, None, None, None, pos_actual]
+        if p[0][1]:
+            if p[0][1].id == 2:
+                p[0] = ["E", None]
 
-        if b[0]:
-            E = Todo.objetos[y][x+1]
-            if E.id == 0 or E.id == 3 or E.id == 4:
-                percibido[0] = E
-        if b[1]:
-            N = Todo.objetos[y-1][x]
-            if N.id == 0 or N.id == 3 or N.id == 4:
-                percibido[1] = N
-        if b[2]:
-            O = Todo.objetos[y][x-1]
-            if O.id == 0 or O.id == 3 or O.id == 4:
-                percibido[2] = O
-        if b[3]:
-            S = Todo.objetos[y+1][x]
-            if S.id == 0 or S.id == 3 or S.id == 4:
-                percibido[3] = S
-        
-        return percibido
+        if p[1][1]:
+            if p[1][1].id == 2:
+                p[1] = ["N", None]
+
+        if p[2][1]:
+            if p[2][1].id == 2:
+                p[2] = ["O", None]
+
+        if p[3][1]:
+            if p[3][1].id == 2:
+                p[3] = ["S", None]
+
+        return p
 
     def mover(self, direccion):
         if direccion == "E":
@@ -391,13 +369,13 @@ class SerVivo(Materia):
         p = self.percibir()
         print("@: ", evento, p)
 
-        if evento == pygame.K_d and p[0]:
+        if evento == pygame.K_d and p[0][1]:
             self.mover("E")
-        if evento == pygame.K_w and p[1]:
+        if evento == pygame.K_w and p[1][1]:
             self.mover("N")
-        if evento == pygame.K_a and p[2]:
+        if evento == pygame.K_a and p[2][1]:
             self.mover("O")
-        if evento == pygame.K_s and p[3]:
+        if evento == pygame.K_s and p[3][1]:
             self.mover("S")
 
         # descripcion
