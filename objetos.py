@@ -87,28 +87,6 @@ class Materia():
         print('coordenadas:\t', self.coord[0] // obj_size, self.coord[1] // obj_size)
         print('nombre:     \t', self.name)
 
-    def generarRastro(self, rango, origen = None):
-        coord = self.coord
-        if not(origen):
-            origen = self.coord
-        
-        p = checkAround(coord)
-        z = []
-        for i in range(4):
-            if self.rastro < rango:
-                if p[i][1]:
-                    if p[i][1].id == 0:
-                        # calcular intensidad segun el origen, Manhattan distance
-                        intensidad = (abs(p[i][1].coord[0] - origen[0]) + abs(p[i][1].coord[1] - origen[1])) // obj_size
-                        c = (120/rango)*intensidad
-                        color = tuple([0, 130-c, 0])
-                        temp = Feromona(4, name = "feromona", color = color, coord = p[i][1].coord, rastro = intensidad, origen = origen)
-                        Todo.agregarObjeto(temp)
-                        z.append(temp)
-
-        for ad in z:
-            ad.generarRastro(rango, origen)
-
 
 class Todo:
     objetos = generarMatriz()
@@ -147,6 +125,7 @@ class Todo:
                     cls.objetos[obj.coord[1]//obj_size][obj.coord[0]//obj_size] = Materia(0, "Nada", (0,0,0), [obj.coord[0], obj.coord[1]])
 
         cls.objetos[y//obj_size][x//obj_size] = Materia(3, "Meta", (0,255,0), [x, y])
+        cls.meta_actual = [x, y]
         return cls.objetos[y//obj_size][x//obj_size]
         
     @classmethod
@@ -193,7 +172,6 @@ class SerVivo(Materia):
 
         self.mostrarMapa = False
         self.moving = False
-        self.PA = False
 
     def defOrigen(self):
         x,y = Todo.mouse()
@@ -213,7 +191,7 @@ class SerVivo(Materia):
         print(f"per {per}")
 
         
-        # si mabby esta sobre la meta, detener
+        # si mabby esta sobre la meta, detener 
         # if p[4].id == 3:
         #     self.moving = False
         #     return 0
@@ -225,89 +203,6 @@ class SerVivo(Materia):
                     pm.append(l)
 
         print(f"pm {pm} {len(pm)}")
-
-        # # si se detecta un rastro, elegir el mas cercano
-        # for f in fer:
-        #     if f[1].rastro < r_min:
-        #         r_min = f[1].rastro
-        #         fer_min = f
-
-
-        # if fer_min:
-        #     if fer_min[0] == "E":
-        #         self.uu = "O"
-        #     if fer_min[0] == "N":
-        #         self.uu = "S"
-        #     if fer_min[0] == "O":
-        #         self.uu = "E"
-        #     if fer_min[0] == "S":
-        #         self.uu = "N"
-
-        #     self.mover(fer_min[0])
-        # else:
-        #     try:
-        #         d = random.sample(lista, k=1)[-1]
-        #         if d == "E":
-        #             self.uu = "O"
-        #         if d == "N":
-        #             self.uu = "S"
-        #         if d == "O":
-        #             self.uu = "E"
-        #         if d == "S":
-        #             self.uu = "N"
-
-        #         self.mover(d)
-        #     except:
-        #         print("el unico camino es por donde vengo...")
-        #         self.uu = ""
-
-    def movPA(self):
-        temp = 45
-        temp_list = []
-        temp_p = self.percibir()
-
-        # si mabby esta sobre la meta, detener
-        if temp_p[4].id == 3:
-            self.PA = False
-            self.moving = False
-            return 0
-
-        # suma de casillas adyacentes a los clones
-        for c in range(len(self.clones)):
-            p = self.clones[c].percibir()
-            for obj in p:
-                if obj:
-                    if obj.id == 3:
-                        self.mover(self.clones[c].direccion)
-                        return 0
-                    elif obj.id == 4:
-                        self.clones[c].suma += obj.rastro
-                    else:
-                        self.clones[c].suma += (rango_rastro + 1)
-                else:
-                    self.clones[c].suma += (rango_rastro + 1)
-            
-            # obtener los clones con la menor suma
-            if self.clones[c].suma == temp and self.clones[c].direccion != self.uu:
-                temp = self.clones[c].suma
-                temp_list.append(self.clones[c].direccion)
-            elif self.clones[c].suma < temp and self.clones[c].direccion != self.uu:
-                temp = self.clones[c].suma
-                temp_list = [self.clones[c].direccion]
-
-        try:
-            d = random.sample(temp_list, k=1)[-1]
-            if d == "E":
-                self.uu = "O"
-            if d == "N":
-                self.uu = "S"
-            if d == "O":
-                self.uu = "E"
-            if d == "S":
-                self.uu = "N"
-            self.mover(d)
-        except:
-            self.uu = ""
 
     def percibir(self):
         p = checkAround(self.coord)
@@ -344,27 +239,6 @@ class SerVivo(Materia):
             self.coord[1] += self.vel
             self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
 
-    def generarClones(self):
-        self.clones = []
-        chka = checkAround(self.coord)
-
-        if chka[0]:
-            if chka[0].id != 2:
-                E = Clon(id=5, name="Clon", color=(254,254,0), coord=[(self.coord[0]+obj_size),(self.coord[1])], direccion="E")
-                self.clones.append(E)
-        if chka[1]:
-            if chka[1].id != 2:
-                N = Clon(id=5, name="Clon", color=(254,254,0), coord=[(self.coord[0]),(self.coord[1]-obj_size)], direccion="N")
-                self.clones.append(N)
-        if chka[2]:
-            if chka[2].id != 2:
-                O = Clon(id=5, name="Clon", color=(254,254,0), coord=[(self.coord[0]-obj_size),(self.coord[1])], direccion="O")
-                self.clones.append(O)
-        if chka[3]:
-            if chka[3].id != 2:
-                S = Clon(id=5, name="Clon", color=(254,254,0), coord=[(self.coord[0]),(self.coord[1]+obj_size)], direccion="S")
-                self.clones.append(S)
-
     def accion(self, evento):
         p = self.percibir()
         print("@: ", evento, p)
@@ -393,14 +267,6 @@ class SerVivo(Materia):
         if evento == pygame.K_o:
             self.defOrigen()
 
-        # aumentar percepcion
-        if evento == pygame.K_c:
-            if self.PA:
-                self.PA = False
-            else:
-                self.PA = True
-
-
         # mover random
         if evento == pygame.K_SPACE:
             if self.moving:
@@ -409,55 +275,32 @@ class SerVivo(Materia):
                 self.moving = True
 
 
-class Feromona(Materia):
-    def __init__(self, id, name, color, coord, rastro, origen):
-        super().__init__(id, name, color, coord)
-        self.rastro = rastro
+class Nodo():
+    open = None
+    closed = None
+
+    def __init__(self, origen, coord, g, h, f):
         self.origen = origen
+        self.coord = coord
+        self.adya = []
 
-    # def draw(self, ventana):
-    #     Font=pygame.font.SysFont('timesnewroman',  15)
-    #     l=Font.render(str(self.rastro), False, (254,254,254), self.color)
-    #     x = self.coord[0] + (obj_size / 4)
-    #     y = self.coord[1] + (obj_size / 4)
+        # nodo a origen
+        self.g = None
+        # nodo a meta
+        self.h = None
+        # costo f = g+h
+        self.f = None
 
-    #     size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
-    #     pygame.draw.rect(ventana, self.color, size)
-    #     ventana.blit(l, (x, y))
+    def obtenerAdya(self):
+        adya = checkAround(self.coord)  
 
-class Clon(Materia):
-    def __init__(self, id, name, color, coord, direccion):
-        super().__init__(id, name, color, coord)
-        self.direccion = direccion
-        self.suma = 0
-    
-    def percibir(self):
-        x = self.coord[0]//obj_size
-        y = self.coord[1]//obj_size
+    def calc_peso(self):
+        self.g = math.sqrt(((self.coord[0] - Todo.meta_actual[0])**2) + ((self.coord[1] - Todo.meta_actual[1])**2))
+        self.h = math.sqrt(((self.coord[0] - self.origen[0])**2) + ((self.coord[1] - self.origen[1])**2))
+        self.f = g + h
 
-        b = checkBorders(self.coord)
-        percibido = [None, None, None, None, None]
 
-        percibido[4] = Todo.objetos[y][x]
-
-        if b[0] and self.direccion != "O":
-            E = Todo.objetos[y][x+1]
-            if E.id == 0 or E.id == 3 or E.id == 4:
-                percibido[0] = E
-        if b[1] and self.direccion != "S":
-            N = Todo.objetos[y-1][x]
-            if N.id == 0 or N.id == 3 or N.id == 4:
-                percibido[1] = N
-            
-        if b[2] and self.direccion != "E":
-            O = Todo.objetos[y][x-1]
-            if O.id == 0 or O.id == 3 or O.id == 4:
-                percibido[2] = O
-            
-        if b[3] and self.direccion != "N":
-            S = Todo.objetos[y+1][x]
-            if S.id == 0 or S.id == 3 or S.id == 4:
-                percibido[3] = S
-            
-        
-        return percibido
+def datos():
+    print(f"meta actual: {Todo.meta_actual}")
+    print(f"abiertos: {Nodo.open}")
+    print(f"analizados: {Nodo.closed}")
