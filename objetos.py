@@ -1,11 +1,14 @@
 import pygame, pygame.font
 import random, math
+import pickle
 
 pygame.font.init()
 map_width       = 640
 map_height      = 640
 obj_size        = 32
 rango_rastro    = 8
+#nombre del mapa a guardar
+nmg     = 'data_n.pickle'
 
 
 def checkBorders(coord):
@@ -64,6 +67,19 @@ def generarMatriz(x = None):
             matriz.append(fila)
     
     return matriz
+
+def guardarMapa():
+    data = Todo.objetos
+    with open(nmg, 'wb') as f:
+        pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
+
+def cargarMapa(nombre):
+    with open(nombre, 'rb') as f:
+        Todo.objetos = pickle.load(f)
+
+def borrarMapa():
+    Todo.objetos = generarMatriz()
+
 
 class Materia():
     def __init__(self, id, name, color, coord, size=[obj_size, obj_size]):
@@ -253,18 +269,18 @@ class SerVivo(Materia):
                 self.buscarMeta = False
             else:
                 raiz = Nodo(5, "Nodo Raiz", (0,0,200), self.coord, None)
-                Nodo.open.append(raiz)
+                Nodo.opened.append(raiz)
                 self.buscarMeta = True
 
 
 class Nodo(Materia):
-    open = []
+    opened = []
     closed = []
 
     @classmethod
     def aStar(cls):
         # pop
-        current = cls.open.pop(0)
+        current = cls.opened.pop(0)
 
         # append to closed
         cls.closed.append(current)
@@ -281,7 +297,7 @@ class Nodo(Materia):
                     x, y = a[1].coord[0]//obj_size, a[1].coord[1]//obj_size 
                     Todo.objetos[y][x] = Nodo(4, "Astar", (0,0,100), a[1].coord, current)
                     Todo.objetos[y][x].calc_peso()
-                    cls.open.append(Todo.objetos[y][x])
+                    cls.opened.append(Todo.objetos[y][x])
 
         cls.sort()
         return True
@@ -291,7 +307,7 @@ class Nodo(Materia):
 
     @classmethod
     def sort(cls):
-        cls.open = sorted(cls.open, key=lambda obj: obj.f)
+        cls.opened = sorted(cls.opened, key=lambda obj: obj.f)
 
 
     def __init__(self, id, name, color, coord, origen):
@@ -327,5 +343,5 @@ class Nodo(Materia):
 
 def datos():
     print(f"\nmeta actual: {Todo.meta_actual}")
-    print(f"abiertos: {Nodo.open}")
+    print(f"abiertos: {Nodo.opened}")
     print(f"analizados: {Nodo.closed}\n")

@@ -35,6 +35,24 @@ if __name__ == "__main__":
                         Todo.verObjeto()
                     elif key == pygame.K_b:
                         datos()
+                    
+                    # guardar y borrar mapa
+                    elif key == pygame.K_x:
+                        guardarMapa()
+                        borrarMapa()
+
+                    # cargar mapas 1-3
+                    elif key == pygame.K_1:
+                        borrarMapa()
+                        cargarMapa('data_1.pickle')
+                    elif key == pygame.K_2:
+                        borrarMapa()
+                        cargarMapa('data_2.pickle')
+                    elif key == pygame.K_3:
+                        borrarMapa()
+                        cargarMapa('data_3.pickle')
+
+                    # definir meta
                     elif key == pygame.K_p:
                         Todo.defMeta()
                     else:
