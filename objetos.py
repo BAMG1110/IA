@@ -263,9 +263,10 @@ class Nodo(Materia):
     def aStar(cls):
         # pop
         current = cls.open.pop(0)
+        print(f"current: {current}")
 
         # append to closed
-        cls.closed.append(current.coord)
+        cls.closed.append(current)
 
         # adyacentes
         adya = checkAround(current.coord)

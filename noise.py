@@ -10,14 +10,14 @@ if __name__ == "__main__":
 
     # objetos
     mabby = SerVivo(id=1, name="mabby", color=(255,0,255), coord=[0, 0])
-    Raiz = Nodo(5, "Nodo Raiz", (0,0,200), mabby.coord, None)
-    Nodo.open.append(mabby.coord)
+    raiz = Nodo(5, "Nodo Raiz", (0,0,200), mabby.coord, None)
+    Nodo.open.append(raiz)
 
     ventana.fill((0,0,0))
 
     while run:
         # time delay _& fps
-        pygame.time.delay(160)
+        pygame.time.delay(30)
         clock.tick(30)
 
         # eventos
