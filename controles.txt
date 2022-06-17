@@ -4,9 +4,11 @@ u: ver mapa (muestra los lugares en los que el agente ya ha estado)
 i: informacion del agente
 o: cambia la ubicacion del agente a donde se encuentra el mouse
 p: define las coordenadas de la meta
-c: aumentar percepcion
 
 m: ver objetos
+n: ver objeto debajo del mouse
+b: ver informacion general del programa
+x: guardar y borrar mapa actual en data_n.txt
 
 ID
 

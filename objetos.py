@@ -268,6 +268,8 @@ class SerVivo(Materia):
             if self.buscarMeta:
                 self.buscarMeta = False
             else:
+                Nodo.opened = []
+                Nodo.closed = []
                 raiz = Nodo(5, "Nodo Raiz", (0,0,200), self.coord, None)
                 Nodo.opened.append(raiz)
                 self.buscarMeta = True
