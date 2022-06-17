@@ -164,10 +164,10 @@ class SerVivo(Materia):
     def __init__(self, id, name, color, coord):
         super().__init__(id, name, color, coord)
         self.mapa = generarMatriz(0)
-
         self.vel = obj_size
 
         self.mostrarMapa = False
+        self.buscarMeta = False
 
     def defOrigen(self):
         x,y = Todo.mouse()
@@ -249,10 +249,12 @@ class SerVivo(Materia):
 
         # mover random
         if evento == pygame.K_SPACE:
-            if self.moving:
-                self.moving = False
+            if self.buscarMeta:
+                self.buscarMeta = False
             else:
-                self.moving = True
+                raiz = Nodo(5, "Nodo Raiz", (0,0,200), self.coord, None)
+                Nodo.open.append(raiz)
+                self.buscarMeta = True
 
 
 class Nodo(Materia):
@@ -263,7 +265,6 @@ class Nodo(Materia):
     def aStar(cls):
         # pop
         current = cls.open.pop(0)
-        print(f"current: {current}")
 
         # append to closed
         cls.closed.append(current)
@@ -273,13 +274,24 @@ class Nodo(Materia):
 
         for a in adya:
             if a[1]:
+                if a[1].id == 3:
+                    print("meta alcanzada")
+                    return False
                 if a[1].id == 0:
-                    Todo.objetos[a[1].coord[1]//obj_size][a[1].coord[0]//obj_size] = Nodo(4, "Astar", (0,0,100), a[1].coord, current)
-                    cls.open.append(a[1])
+                    x, y = a[1].coord[0]//obj_size, a[1].coord[1]//obj_size 
+                    Todo.objetos[y][x] = Nodo(4, "Astar", (0,0,100), a[1].coord, current)
+                    Todo.objetos[y][x].calc_peso()
+                    cls.open.append(Todo.objetos[y][x])
 
-    # @classmethod
-    # def sort(cls):
-    #     for c in cls.open:
+        cls.sort()
+        return True
+
+        
+
+
+    @classmethod
+    def sort(cls):
+        cls.open = sorted(cls.open, key=lambda obj: obj.f)
 
 
     def __init__(self, id, name, color, coord, origen):
@@ -294,16 +306,26 @@ class Nodo(Materia):
         # costo f = g+h
         self.f = None
 
+    def __repr__(self):
+        return f"f:{self.f}"
+
     def obtenerAdya(self):
         adya = checkAround(self.coord)  
 
     def calc_peso(self):
-        self.g = math.sqrt(((self.coord[0] - Todo.meta_actual[0])**2) + ((self.coord[1] - Todo.meta_actual[1])**2))
-        self.h = math.sqrt(((self.coord[0] - self.origen[0])**2) + ((self.coord[1] - self.origen[1])**2))
-        self.f = g + h
+        cx = self.coord[0] // obj_size
+        cy = self.coord[1] // obj_size
+        mx = Todo.meta_actual[0] // obj_size
+        my = Todo.meta_actual[1] // obj_size
+        ox = self.origen.coord[0] // obj_size
+        oy = self.origen.coord[1] // obj_size
+
+        self.g = round(math.sqrt(((cx - mx)**2) + ((cy - my)**2)), 2)
+        self.h = round(math.sqrt(((cx - ox)**2) + ((cy - oy)**2)), 2)
+        self.f = self.g + self.h
 
 
 def datos():
-    print(f"meta actual: {Todo.meta_actual}")
+    print(f"\nmeta actual: {Todo.meta_actual}")
     print(f"abiertos: {Nodo.open}")
-    print(f"analizados: {Nodo.closed}")
+    print(f"analizados: {Nodo.closed}\n")

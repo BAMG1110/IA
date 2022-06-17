@@ -10,9 +10,8 @@ if __name__ == "__main__":
 
     # objetos
     mabby = SerVivo(id=1, name="mabby", color=(255,0,255), coord=[0, 0])
-    raiz = Nodo(5, "Nodo Raiz", (0,0,200), mabby.coord, None)
-    Nodo.open.append(raiz)
-
+    Todo.objetos[19][19] = Materia(3, "Meta", (0,255,0), [608, 608])
+    Todo.meta_actual = [608, 608]
     ventana.fill((0,0,0))
 
     while run:
@@ -47,8 +46,8 @@ if __name__ == "__main__":
             Todo.mouse()
                 
         # A*
-        if len(Nodo.open) > 0:
-            Nodo.aStar()
+        if mabby.buscarMeta:
+            mabby.buscarMeta = Nodo.aStar()
 
         # update
         ventana.fill((0,0,0))
