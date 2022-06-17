@@ -268,9 +268,11 @@ class SerVivo(Materia):
             if self.buscarMeta:
                 self.buscarMeta = False
             else:
+                print("buscando")
                 Nodo.opened = []
                 Nodo.closed = []
-                raiz = Nodo(5, "Nodo Raiz", (0,0,200), self.coord, None)
+                raiz = Nodo(5, "Nodo Raiz", (0,0,200), self.coord, self)
+                raiz.calc_peso()
                 Nodo.opened.append(raiz)
                 self.buscarMeta = True
 
@@ -283,17 +285,20 @@ class Nodo(Materia):
     def aStar(cls):
         # pop
         current = cls.opened.pop(0)
+        
+        # adyacentes
+        current.adya = checkAround(current.coord)
 
         # append to closed
         cls.closed.append(current)
+        cls.closed = sorted(cls.closed, key=lambda obj: obj.f)
 
-        # adyacentes
-        adya = checkAround(current.coord)
-
-        for a in adya:
+        for a in current.adya:
             if a[1]:
                 if a[1].id == 3:
                     print("meta alcanzada")
+                    for obj in Nodo.closed:
+                        Todo.objetos[obj.coord[1]//obj_size][obj.coord[0]//obj_size].color = (0,254,0)
                     return False
                 if a[1].id == 0:
                     x, y = a[1].coord[0]//obj_size, a[1].coord[1]//obj_size 
@@ -301,15 +306,8 @@ class Nodo(Materia):
                     Todo.objetos[y][x].calc_peso()
                     cls.opened.append(Todo.objetos[y][x])
 
-        cls.sort()
-        return True
-
-        
-
-
-    @classmethod
-    def sort(cls):
         cls.opened = sorted(cls.opened, key=lambda obj: obj.f)
+        return True
 
 
     def __init__(self, id, name, color, coord, origen):
@@ -346,4 +344,4 @@ class Nodo(Materia):
 def datos():
     print(f"\nmeta actual: {Todo.meta_actual}")
     print(f"abiertos: {Nodo.opened}")
-    print(f"analizados: {Nodo.closed}\n")
+    print(f"analizados: {Nodo.closed} len {len(Nodo.closed)}\n")
