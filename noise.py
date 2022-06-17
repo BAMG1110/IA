@@ -10,6 +10,8 @@ if __name__ == "__main__":
 
     # objetos
     mabby = SerVivo(id=1, name="mabby", color=(255,0,255), coord=[0, 0])
+    Raiz = Nodo(5, "Nodo Raiz", (0,0,200), mabby.coord, None)
+    Nodo.open.append(mabby.coord)
 
     ventana.fill((0,0,0))
 
@@ -44,7 +46,9 @@ if __name__ == "__main__":
             # escuchar mouse
             Todo.mouse()
                 
-                    
+        # A*
+        if len(Nodo.open) > 0:
+            Nodo.aStar()
 
         # update
         ventana.fill((0,0,0))
@@ -55,10 +59,6 @@ if __name__ == "__main__":
         
         if mabby.mostrarMapa:
             mabby.verMapa(ventana)
-        
-        if mabby.moving:
-            mabby.movRandom()
-
 
         Todo.drawGrid(ventana)
         

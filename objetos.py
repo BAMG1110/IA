@@ -28,7 +28,7 @@ def checkAround(coord):
     y = coord[1]//obj_size
 
     b = checkBorders(coord)
-    periferia = [["E", None], ["N", None], ["O", None], ["S", None], ["actual", Todo.objetos[y][x]]]
+    periferia = [["E", None], ["N", None], ["O", None], ["S", None]]
 
     if b[0]:
         E = ["E", Todo.objetos[y][x+1]]
@@ -66,13 +66,12 @@ def generarMatriz(x = None):
     return matriz
 
 class Materia():
-    def __init__(self, id, name, color, coord, size=[obj_size, obj_size], rastro = 0):
+    def __init__(self, id, name, color, coord, size=[obj_size, obj_size]):
         self.id = id
         self.name = name
         self.color = color
         self.coord = coord
         self.size = size
-        self.rastro = rastro
     
     def __repr__(self):
         return f"{self.id}"
@@ -165,13 +164,10 @@ class SerVivo(Materia):
     def __init__(self, id, name, color, coord):
         super().__init__(id, name, color, coord)
         self.mapa = generarMatriz(0)
-        self.clones = []
 
         self.vel = obj_size
-        self.uu = ""
 
         self.mostrarMapa = False
-        self.moving = False
 
     def defOrigen(self):
         x,y = Todo.mouse()
@@ -185,24 +181,8 @@ class SerVivo(Materia):
                 l=Font.render(str(self.mapa[j][i]), False, (254,254,254), (0,0,0))
                 ventana.blit(l, (i*obj_size + (obj_size / 4), j*obj_size + (obj_size / 4)))
     
-    def movRandom(self):
-        per = self.percibir()
-        pm = []
-        print(f"per {per}")
-
-        
-        # si mabby esta sobre la meta, detener 
-        # if p[4].id == 3:
-        #     self.moving = False
-        #     return 0
-
-        # posibles movimientos
-        for l in per:
-            if l[1]:
-                if l[1].id == 4:
-                    pm.append(l)
-
-        print(f"pm {pm} {len(pm)}")
+    def buscarMeta(self):
+        pass
 
     def percibir(self):
         p = checkAround(self.coord)
@@ -275,13 +255,35 @@ class SerVivo(Materia):
                 self.moving = True
 
 
-class Nodo():
-    open = None
-    closed = None
+class Nodo(Materia):
+    open = []
+    closed = []
 
-    def __init__(self, origen, coord, g, h, f):
+    @classmethod
+    def aStar(cls):
+        # pop
+        current = cls.open.pop(0)
+
+        # append to closed
+        cls.closed.append(current.coord)
+
+        # adyacentes
+        adya = checkAround(current.coord)
+
+        for a in adya:
+            if a[1]:
+                if a[1].id == 0:
+                    Todo.objetos[a[1].coord[1]//obj_size][a[1].coord[0]//obj_size] = Nodo(4, "Astar", (0,0,100), a[1].coord, current)
+                    cls.open.append(a[1])
+
+    # @classmethod
+    # def sort(cls):
+    #     for c in cls.open:
+
+
+    def __init__(self, id, name, color, coord, origen):
+        super().__init__(id, name, color, coord)
         self.origen = origen
-        self.coord = coord
         self.adya = []
 
         # nodo a origen

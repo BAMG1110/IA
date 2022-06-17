@@ -14,5 +14,4 @@ ID
 1: agente
 2: obstaculo
 3: Meta
-4: feromona
-5: clon
+4: casilla Astar
