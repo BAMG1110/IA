@@ -325,6 +325,20 @@ class Nodo(Materia):
     def __repr__(self):
         return f"f:{self.f}"
 
+    def draw(self, ventana):
+        Font=pygame.font.SysFont('timesnewroman',  11)
+        lf=Font.render(str(self.f), False, (0,0,0), self.color)
+        lg=Font.render(str(self.g), False, (0,0,0), self.color)
+        lh=Font.render(str(self.h), False, (0,0,0), self.color)
+        x = self.coord[0] + 2
+        y = self.coord[1]
+
+        size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
+        pygame.draw.rect(ventana, self.color, size)
+        ventana.blit(lf, (x, y))
+        ventana.blit(lg, (x, y+10))
+        ventana.blit(lh, (x, y+20))
+
     def obtenerAdya(self):
         adya = checkAround(self.coord)  
 
