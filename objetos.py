@@ -282,7 +282,7 @@ class SerVivo(Materia):
                 if p[i].id == 3:
                     temp = lista_dir[i]
                     break
-                elif temp[1] < lista_dir[i][1]:
+                elif temp[1] > lista_dir[i][1]:
                     temp = lista_dir[i]
 
         if temp[0] == "E":
