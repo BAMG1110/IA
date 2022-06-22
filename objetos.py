@@ -25,6 +25,11 @@ def checkBorders(coord):
         b[3] = None
 
     return b
+    
+def datos():
+    print(f"\nmeta actual: {Todo.meta_actual}")
+    print(f"abiertos: {Nodo.opened}")
+    print(f"analizados: {Nodo.closed} len {len(Nodo.closed)}\n")
 
 def checkAround(coord):
     x = coord[0]//obj_size
@@ -353,9 +358,3 @@ class Nodo(Materia):
         self.g = round(math.sqrt(((cx - mx)**2) + ((cy - my)**2)), 2)
         self.h = round(math.sqrt(((cx - ox)**2) + ((cy - oy)**2)), 2)
         self.f = self.g + self.h
-
-
-def datos():
-    print(f"\nmeta actual: {Todo.meta_actual}")
-    print(f"abiertos: {Nodo.opened}")
-    print(f"analizados: {Nodo.closed} len {len(Nodo.closed)}\n")
