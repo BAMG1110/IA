@@ -25,11 +25,6 @@ def checkBorders(coord):
         b[3] = None
 
     return b
-    
-def datos():
-    print(f"\nmeta actual: {Todo.meta_actual}")
-    print(f"abiertos: {Nodo.opened}")
-    print(f"analizados: {Nodo.closed} len {len(Nodo.closed)}\n")
 
 def checkAround(coord):
     x = coord[0]//obj_size
@@ -84,6 +79,11 @@ def cargarMapa(nombre):
 
 def borrarMapa():
     Todo.objetos = generarMatriz()
+    
+def datos():
+    print(f"\nmeta actual: {Todo.meta_actual}")
+    print(f"abiertos: {Nodo.opened}")
+    print(f"analizados: {Nodo.closed} len {len(Nodo.closed)}\n")
 
 
 class Materia():
@@ -201,9 +201,6 @@ class SerVivo(Materia):
                 Font=pygame.font.SysFont('timesnewroman',  15)
                 l=Font.render(str(self.mapa[j][i]), False, (254,254,254), (0,0,0))
                 ventana.blit(l, (i*obj_size + (obj_size / 4), j*obj_size + (obj_size / 4)))
-    
-    def buscarMeta(self):
-        pass
 
     def percibir(self):
         p = checkAround(self.coord)
@@ -268,93 +265,13 @@ class SerVivo(Materia):
         if evento == pygame.K_o:
             self.defOrigen()
 
-        # mover random
+        # inciar A*
         if evento == pygame.K_SPACE:
             if self.buscarMeta:
                 self.buscarMeta = False
             else:
-                print("buscando")
-                Nodo.opened = []
-                Nodo.closed = []
-                raiz = Nodo(5, "Nodo Raiz", (0,0,200), self.coord, self)
-                raiz.calc_peso()
-                Nodo.opened.append(raiz)
                 self.buscarMeta = True
 
 
 class Nodo(Materia):
-    opened = []
-    closed = []
-
-    @classmethod
-    def aStar(cls):
-        # pop
-        current = cls.opened.pop(0)
-        
-        # adyacentes
-        current.adya = checkAround(current.coord)
-
-        # append to closed
-        cls.closed.append(current)
-        cls.closed = sorted(cls.closed, key=lambda obj: obj.f)
-
-        for a in current.adya:
-            if a[1]:
-                if a[1].id == 3:
-                    print("meta alcanzada")
-                    for obj in Nodo.closed:
-                        Todo.objetos[obj.coord[1]//obj_size][obj.coord[0]//obj_size].color = (0,254,0)
-                    return False
-                if a[1].id == 0:
-                    x, y = a[1].coord[0]//obj_size, a[1].coord[1]//obj_size 
-                    Todo.objetos[y][x] = Nodo(4, "Astar", (0,0,100), a[1].coord, current)
-                    Todo.objetos[y][x].calc_peso()
-                    cls.opened.append(Todo.objetos[y][x])
-
-        cls.opened = sorted(cls.opened, key=lambda obj: obj.f)
-        return True
-
-
-    def __init__(self, id, name, color, coord, origen):
-        super().__init__(id, name, color, coord)
-        self.origen = origen
-        self.adya = []
-
-        # nodo a origen
-        self.g = None
-        # nodo a meta
-        self.h = None
-        # costo f = g+h
-        self.f = None
-
-    def __repr__(self):
-        return f"f:{self.f}"
-
-    def draw(self, ventana):
-        Font=pygame.font.SysFont('timesnewroman',  11)
-        lf=Font.render(str(self.f), False, (0,0,0), self.color)
-        lg=Font.render(str(self.g), False, (0,0,0), self.color)
-        lh=Font.render(str(self.h), False, (0,0,0), self.color)
-        x = self.coord[0] + 2
-        y = self.coord[1]
-
-        size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
-        pygame.draw.rect(ventana, self.color, size)
-        ventana.blit(lf, (x, y))
-        ventana.blit(lg, (x, y+10))
-        ventana.blit(lh, (x, y+20))
-
-    def obtenerAdya(self):
-        adya = checkAround(self.coord)  
-
-    def calc_peso(self):
-        cx = self.coord[0] // obj_size
-        cy = self.coord[1] // obj_size
-        mx = Todo.meta_actual[0] // obj_size
-        my = Todo.meta_actual[1] // obj_size
-        ox = self.origen.coord[0] // obj_size
-        oy = self.origen.coord[1] // obj_size
-
-        self.g = round(math.sqrt(((cx - mx)**2) + ((cy - my)**2)), 2)
-        self.h = round(math.sqrt(((cx - ox)**2) + ((cy - oy)**2)), 2)
-        self.f = self.g + self.h
+    pass

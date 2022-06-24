@@ -1,19 +1,23 @@
-wasd: movimiento
+controles
 
-u: ver mapa (muestra los lugares en los que el agente ya ha estado)
-i: informacion del agente
-o: cambia la ubicacion del agente a donde se encuentra el mouse
-p: define las coordenadas de la meta
+    wasd: movimiento
 
-m: ver objetos
-n: ver objeto debajo del mouse
-b: ver informacion general del programa
-x: guardar y borrar mapa actual en data_n.txt
+    u: ver mapa (muestra los lugares en los que el agente ya ha estado)
+    i: informacion del agente
+    o: cambia la ubicacion del agente a donde se encuentra el mouse
+    p: define las coordenadas de la meta
 
-ID
+    m: ver matriz de objetos
+    n: ver objeto debajo del puntero
+    b: ver informacion general del programa
+    x: guardar y borrar mapa actual en data_n.txt
 
-0: espacio vacio
-1: agente
-2: obstaculo
-3: Meta
-4: casilla Astar
+    1-4: data_1, data_2, data_3, data_n
+
+IDs
+
+    0: Espacio vacio
+    1: Agente
+    2: Obstaculo
+    3: Meta
+    4: Nodo
