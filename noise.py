@@ -13,7 +13,7 @@ if __name__ == "__main__":
     Todo.objetos[19][19] = Materia(3, "Meta", (0,255,0), [608, 608])
     Todo.meta_actual = [608, 608]
     ventana.fill((0,0,0))
-
+    
     while run:
         # time delay _& fps
         pygame.time.delay(30)
@@ -65,15 +65,16 @@ if __name__ == "__main__":
             
             # escuchar mouse
             Todo.mouse()
-                
-        # A*
-        if mabby.buscarMeta:
-            mabby.buscarMeta = Nodo.aStar()
+
 
         # update
         Todo.draw(ventana)
         
         mabby.draw(ventana)
+        
+        # A*
+        if mabby.buscarMeta:
+            mabby.buscarMeta = Nodo.Astar()
         
         if mabby.mostrarMapa:
             mabby.verMapa(ventana)

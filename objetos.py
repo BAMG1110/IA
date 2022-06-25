@@ -6,9 +6,9 @@ pygame.font.init()
 map_width       = 640
 map_height      = 640
 obj_size        = 32
-rango_rastro    = 8
+
 #nombre del mapa a guardar
-nmg     = 'data_n.pickle'
+nmg = 'data_n.pickle'
 
 
 def checkBorders(coord):
@@ -36,24 +36,31 @@ def checkAround(coord):
     if b[0]:
         E = ["E", Todo.objetos[y][x+1]]
         periferia[0] = E
-    if b[0] and b[1]:
-        E = ["NE", Todo.objetos[y-1][x+1]]
-        periferia[1] = E
+
     if b[1]:
         N = ["N", Todo.objetos[y-1][x]]
         periferia[2] = N
-    if b[1] and b[0]:
-        O = ["NO", Todo.objetos[y-1][x-1]]
-        periferia[3] = O
+
     if b[2]:
         O = ["O", Todo.objetos[y][x-1]]
         periferia[4] = O
-    if b[2] and b[3]:
-        S = ["SO", Todo.objetos[y+1][x-1]]
-        periferia[5] = S
+
     if b[3]:
         S = ["S", Todo.objetos[y+1][x]]
         periferia[6] = S
+
+    if b[0] and b[1]:
+        E = ["NE", Todo.objetos[y-1][x+1]]
+        periferia[1] = E
+
+    if b[1] and b[2]:
+        O = ["NO", Todo.objetos[y-1][x-1]]
+        periferia[3] = O
+
+    if b[2] and b[3]:
+        S = ["SO", Todo.objetos[y+1][x-1]]
+        periferia[5] = S
+
     if b[3] and b[0]:
         S = ["SE", Todo.objetos[y+1][x+1]]
         periferia[7] = S
@@ -94,8 +101,8 @@ def borrarMapa():
     
 def datos():
     print(f"\nmeta actual: {Todo.meta_actual}")
-    print(f"abiertos: {Nodo.opened}")
-    print(f"analizados: {Nodo.closed} len {len(Nodo.closed)}\n")
+    print(f"abiertos: {Nodo.open_list}")
+    print(f"analizados: {Nodo.closed_list} len {len(Nodo.closed_list)}\n")
 
 
 class Materia():
@@ -185,7 +192,7 @@ class Todo:
         pos = [(x//obj_size)*obj_size, (y//obj_size)*obj_size]
 
         if pygame.mouse.get_pressed()[0] == True:
-            obj = Materia(2, "algun tipo de piedra", (255, 0, 0), pos)
+            obj = Materia(2, "algun tipo de obstaculo", (255, 0, 0), pos)
             cls.agregarObjeto(obj)
         elif pygame.mouse.get_pressed()[2] == True:
             cls.eliminarObjeto(pos)
@@ -234,19 +241,19 @@ class SerVivo(Materia):
                 p[6] = ["S", None]
         
         if p[1][1]:
-            if not(p[0][1]) and not(p[2][1]):
+            if not(p[0][1]) and not(p[2][1]) or p[1][1].id == 2:
                 p[1] = ["NE", None]
 
         if p[3][1]:
-            if not(p[2][1]) and not(p[4][1]):
+            if not(p[2][1]) and not(p[4][1]) or p[3][1].id == 2:
                 p[3] = ["NO", None]
 
         if p[5][1]:
-            if not(p[4][1]) and not(p[6][1]):
+            if not(p[4][1]) and not(p[6][1]) or p[5][1].id == 2:
                 p[5] = ["SO", None]
 
         if p[7][1]:
-            if not(p[6][1]) and not(p[0][1]):
+            if not(p[6][1]) and not(p[0][1]) or p[7][1].id == 2:
                 p[7] = ["SE", None]
 
         return p
@@ -283,7 +290,7 @@ class SerVivo(Materia):
 
     def accion(self, evento):
         p = self.percibir()
-        print("@: ", evento, p)
+        # print("@: ", evento, p)
 
         if evento == pygame.K_d and p[0][1]:
             self.mover("E")
@@ -322,8 +329,107 @@ class SerVivo(Materia):
             if self.buscarMeta:
                 self.buscarMeta = False
             else:
+                x,y = self.coord
+                raiz = Nodo(4, "Nodo raiz", (0,0,200), [x, y], self)
+                Nodo.origen = raiz
+                Nodo.open_list.append(raiz)
+                Todo.objetos[raiz.coord[1]//obj_size][raiz.coord[0]//obj_size] = raiz
                 self.buscarMeta = True
 
 
 class Nodo(Materia):
-    pass
+    open_list = []
+    closed_list = []
+    origen = None
+
+    def __init__(self, id, name, color, coord, parent):
+        super().__init__(id, name, color, coord)
+        self.parent = parent
+        self.childs = []
+        self.open = False
+        self.g = 0
+        self.h = 0
+        self.f = 0
+
+    # def __repr__(self):
+    #     return f"\nparent: {self.parent.coord}, \t[{self.coord}:{round(self.f, 4)}]"
+    
+    def obtenerAdya(self):
+        p = checkAround(self.coord)
+
+        if p[0][1]:
+            if p[0][1].id == 2:
+                p[0] = ["E", None]
+
+        if p[2][1]:
+            if p[2][1].id == 2:
+                p[2] = ["N", None]
+
+        if p[4][1]:
+            if p[4][1].id == 2:
+                p[4] = ["O", None]
+
+        if p[6][1]:
+            if p[6][1].id == 2:
+                p[6] = ["S", None]
+        
+        if p[1][1]:
+            if not(p[0][1]) and not(p[2][1]) or p[1][1].id == 2:
+                p[1] = ["NE", None]
+
+        if p[3][1]:
+            if not(p[2][1]) and not(p[4][1]) or p[3][1].id == 2:
+                p[3] = ["NO", None]
+
+        if p[5][1]:
+            if not(p[4][1]) and not(p[6][1]) or p[5][1].id == 2:
+                p[5] = ["SO", None]
+
+        if p[7][1]:
+            if not(p[6][1]) and not(p[0][1]) or p[7][1].id == 2:
+                p[7] = ["SE", None]
+
+        return p
+
+    def calc_peso(self):
+        ox, oy = Nodo.origen.coord[0]//obj_size, Nodo.origen.coord[1]//obj_size
+        mx, my = Todo.meta_actual[0]//obj_size, Todo.meta_actual[1]//obj_size
+        x, y = self.coord[0]//obj_size, self.coord[1]//obj_size
+        self.g = math.sqrt((ox-x)**2 + (oy-y)**2)
+        self.h = math.sqrt((mx-x)**2 + (my-y)**2)
+        self.f = self.g + self.h
+
+    @classmethod
+    def Astar(cls):
+        current = cls.open_list.pop(0)
+
+        adya = current.obtenerAdya()
+        print(current.coord, "\n", adya)
+
+        for d, obj in adya:
+            if obj:
+                if obj.id == 3:
+                    return False
+                if obj.id == 0:
+                    x,y = obj.coord
+                    nodo = Nodo(4, "Nodo", (0,0,100), [x, y], current)
+                    nodo.calc_peso()
+                    cls.open_list.append(nodo)
+                    current.childs.append(nodo)
+                    Todo.objetos[y//obj_size][x//obj_size] = nodo
+                    print(d, x, y)
+                    if x == 608:
+                        return False
+                # if obj.id == 4:
+
+        
+        cls.open_list = sorted(cls.open_list, key=lambda obj: obj.f)
+
+        cls.closed_list.append(current)
+
+        return True
+
+
+
+
+    
