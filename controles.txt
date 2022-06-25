@@ -10,7 +10,7 @@ controles
     m: ver matriz de objetos
     n: ver objeto debajo del puntero
     b: ver informacion general del programa
-    x: guardar y borrar mapa actual en data_n.txt
+    v: guardar y borrar mapa actual en data_n.txt
 
     1-4: data_1, data_2, data_3, data_n
 

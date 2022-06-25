@@ -37,9 +37,9 @@ if __name__ == "__main__":
                         datos()
                     
                     # guardar y borrar mapa
-                    elif key == pygame.K_x:
-                        guardarMapa()
-                        borrarMapa()
+                    # elif key == pygame.K_v:
+                    #     guardarMapa()
+                    #     borrarMapa()
 
                     # cargar mapas 1-3
                     elif key == pygame.K_1:
@@ -71,8 +71,6 @@ if __name__ == "__main__":
             mabby.buscarMeta = Nodo.aStar()
 
         # update
-        ventana.fill((0,0,0))
-
         Todo.draw(ventana)
         
         mabby.draw(ventana)

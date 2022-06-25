@@ -31,20 +31,32 @@ def checkAround(coord):
     y = coord[1]//obj_size
 
     b = checkBorders(coord)
-    periferia = [["E", None], ["N", None], ["O", None], ["S", None]]
+    periferia = [["E", None], ["NE", None], ["N", None], ["NO", None], ["O", None], ["SO", None], ["S", None], ["SE", None]]
 
     if b[0]:
         E = ["E", Todo.objetos[y][x+1]]
         periferia[0] = E
+    if b[0] and b[1]:
+        E = ["NE", Todo.objetos[y-1][x+1]]
+        periferia[1] = E
     if b[1]:
         N = ["N", Todo.objetos[y-1][x]]
-        periferia[1] = N
+        periferia[2] = N
+    if b[1] and b[0]:
+        O = ["NO", Todo.objetos[y-1][x-1]]
+        periferia[3] = O
     if b[2]:
         O = ["O", Todo.objetos[y][x-1]]
-        periferia[2] = O
+        periferia[4] = O
+    if b[2] and b[3]:
+        S = ["SO", Todo.objetos[y+1][x-1]]
+        periferia[5] = S
     if b[3]:
         S = ["S", Todo.objetos[y+1][x]]
-        periferia[3] = S
+        periferia[6] = S
+    if b[3] and b[0]:
+        S = ["SE", Todo.objetos[y+1][x+1]]
+        periferia[7] = S
     
     return periferia
 
@@ -209,17 +221,33 @@ class SerVivo(Materia):
             if p[0][1].id == 2:
                 p[0] = ["E", None]
 
-        if p[1][1]:
-            if p[1][1].id == 2:
-                p[1] = ["N", None]
-
         if p[2][1]:
             if p[2][1].id == 2:
-                p[2] = ["O", None]
+                p[2] = ["N", None]
+
+        if p[4][1]:
+            if p[4][1].id == 2:
+                p[4] = ["O", None]
+
+        if p[6][1]:
+            if p[6][1].id == 2:
+                p[6] = ["S", None]
+        
+        if p[1][1]:
+            if not(p[0][1]) and not(p[2][1]):
+                p[1] = ["NE", None]
 
         if p[3][1]:
-            if p[3][1].id == 2:
-                p[3] = ["S", None]
+            if not(p[2][1]) and not(p[4][1]):
+                p[3] = ["NO", None]
+
+        if p[5][1]:
+            if not(p[4][1]) and not(p[6][1]):
+                p[5] = ["SO", None]
+
+        if p[7][1]:
+            if not(p[6][1]) and not(p[0][1]):
+                p[7] = ["SE", None]
 
         return p
 
@@ -227,13 +255,29 @@ class SerVivo(Materia):
         if direccion == "E":
             self.coord[0] += self.vel
             self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
+        if direccion == "NE":
+            self.coord[0] += self.vel
+            self.coord[1] -= self.vel
+            self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
         if direccion == "N":
+            self.coord[1] -= self.vel
+            self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
+        if direccion == "NO":
+            self.coord[0] -= self.vel
             self.coord[1] -= self.vel
             self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
         if direccion == "O":
             self.coord[0] -= self.vel
             self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
+        if direccion == "SO":
+            self.coord[0] -= self.vel
+            self.coord[1] += self.vel
+            self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
         if direccion == "S":
+            self.coord[1] += self.vel
+            self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
+        if direccion == "SE":
+            self.coord[0] += self.vel
             self.coord[1] += self.vel
             self.mapa[self.coord[1]//obj_size][self.coord[0]//obj_size] += 1
 
@@ -243,12 +287,20 @@ class SerVivo(Materia):
 
         if evento == pygame.K_d and p[0][1]:
             self.mover("E")
-        if evento == pygame.K_w and p[1][1]:
+        if evento == pygame.K_e and p[1][1]:
+            self.mover("NE")
+        if evento == pygame.K_w and p[2][1]:
             self.mover("N")
-        if evento == pygame.K_a and p[2][1]:
+        if evento == pygame.K_q and p[3][1]:
+            self.mover("NO")
+        if evento == pygame.K_a and p[4][1]:
             self.mover("O")
-        if evento == pygame.K_s and p[3][1]:
+        if evento == pygame.K_z and p[5][1]:
+            self.mover("SO")
+        if evento == pygame.K_x and p[6][1]:
             self.mover("S")
+        if evento == pygame.K_c and p[7][1]:
+            self.mover("SE")
 
         # descripcion
         if evento == pygame.K_i:
