@@ -330,7 +330,7 @@ class SerVivo(Materia):
                 self.buscarMeta = False
             else:
                 x,y = self.coord
-                raiz = Nodo(4, "Nodo raiz", (0,0,200), [x, y], self)
+                raiz = Nodo(5, "Nodo raiz", (0,0,200), [x, y], self)
                 Nodo.origen = raiz
                 Nodo.open_list.append(raiz)
                 Todo.objetos[raiz.coord[1]//obj_size][raiz.coord[0]//obj_size] = raiz
@@ -351,7 +351,8 @@ class Nodo(Materia):
         self.h = 0
         self.f = 0
 
-    # def __repr__(self):
+    def __repr__(self):
+        return f"\nparent {self.parent.coord}, c:{self.coord}, p:{self.f}"
     #     return f"\nparent: {self.parent.coord}, \t[{self.coord}:{round(self.f, 4)}]"
     
     def obtenerAdya(self):
@@ -404,12 +405,10 @@ class Nodo(Materia):
         current = cls.open_list.pop(0)
 
         adya = current.obtenerAdya()
-        print(current.coord, "\n", adya)
+        print(adya)
 
         for d, obj in adya:
             if obj:
-                if obj.id == 3:
-                    return False
                 if obj.id == 0:
                     x,y = obj.coord
                     nodo = Nodo(4, "Nodo", (0,0,100), [x, y], current)
@@ -417,10 +416,14 @@ class Nodo(Materia):
                     cls.open_list.append(nodo)
                     current.childs.append(nodo)
                     Todo.objetos[y//obj_size][x//obj_size] = nodo
-                    print(d, x, y)
-                    if x == 608:
-                        return False
-                # if obj.id == 4:
+                elif obj.id == 4:
+                    x,y = obj.coord
+                    nodo = Nodo(4, "Nodo", (0,0,100), [x, y], current)
+                    nodo.calc_peso()
+                    print(f"acutal: {obj.coord}:{obj.f}, nuevo: {nodo.coord}:{nodo.f}")
+                
+                if obj.id == 3:
+                    return False
 
         
         cls.open_list = sorted(cls.open_list, key=lambda obj: obj.f)
