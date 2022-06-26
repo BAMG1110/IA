@@ -5,7 +5,7 @@ import pickle
 pygame.font.init()
 map_width       = 640
 map_height      = 640
-obj_size        = 32
+obj_size        = 64
 
 #nombre del mapa a guardar
 nmg = 'data_n.pickle'
@@ -331,6 +331,7 @@ class SerVivo(Materia):
             else:
                 x,y = self.coord
                 raiz = Nodo(5, "Nodo raiz", (0,0,200), [x, y], self)
+                raiz.calc_peso(raiz)
                 Nodo.origen = raiz
                 Nodo.open_list.append(raiz)
                 Todo.objetos[raiz.coord[1]//obj_size][raiz.coord[0]//obj_size] = raiz
@@ -350,10 +351,25 @@ class Nodo(Materia):
         self.g = 0
         self.h = 0
         self.f = 0
+    
+    def draw(self, ventana):
+        Font=pygame.font.SysFont('timesnewroman',  14)
+        lg=Font.render(str(round(self.g, 4)), False, (255,255,255), self.color)
+        lh=Font.render(str(round(self.h, 4)), False, (255,255,255), self.color)
+        lf=Font.render(str(round(self.f, 4)), False, (255,255,255), self.color)
+        x = self.coord[0] + 2
+        y = self.coord[1]
+
+        size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
+        pygame.draw.rect(ventana, self.color, size)
+        ventana.blit(lg, (x, y))
+        ventana.blit(lh, (x, y+15))
+        ventana.blit(lf, (x, y+30))
 
     def __repr__(self):
-        return f"\nparent {self.parent.coord}, c:{self.coord}, p:{self.f}"
-    #     return f"\nparent: {self.parent.coord}, \t[{self.coord}:{round(self.f, 4)}]"
+        return f"\n\t{self.coord[0]//obj_size, self.coord[1]//obj_size}"
+    #     return f"\nparent {self.parent.coord}, c:{self.coord}, p:{self.f}"
+    # #     return f"\nparent: {self.parent.coord}, \t[{self.coord}:{round(self.f, 4)}]"
     
     def obtenerAdya(self):
         p = checkAround(self.coord)
@@ -392,43 +408,53 @@ class Nodo(Materia):
 
         return p
 
-    def calc_peso(self):
-        ox, oy = Nodo.origen.coord[0]//obj_size, Nodo.origen.coord[1]//obj_size
+    def calc_peso(self, parent):
+        px, py = parent.coord[0]//obj_size, parent.coord[1]//obj_size
         mx, my = Todo.meta_actual[0]//obj_size, Todo.meta_actual[1]//obj_size
         x, y = self.coord[0]//obj_size, self.coord[1]//obj_size
-        self.g = math.sqrt((ox-x)**2 + (oy-y)**2)
+        self.g = math.sqrt((px-x)**2 + (py-y)**2) + parent.g
         self.h = math.sqrt((mx-x)**2 + (my-y)**2)
         self.f = self.g + self.h
 
     @classmethod
     def Astar(cls):
         current = cls.open_list.pop(0)
+        cls.closed_list.append(current)
 
         adya = current.obtenerAdya()
-        print(adya)
 
         for d, obj in adya:
             if obj:
+                if obj.id == 3:
+                    for n in cls.closed_list:
+                        n.color = (0,254,0)
+                    return False
                 if obj.id == 0:
                     x,y = obj.coord
                     nodo = Nodo(4, "Nodo", (0,0,100), [x, y], current)
-                    nodo.calc_peso()
+                    nodo.calc_peso(current)
                     cls.open_list.append(nodo)
                     current.childs.append(nodo)
                     Todo.objetos[y//obj_size][x//obj_size] = nodo
                 elif obj.id == 4:
                     x,y = obj.coord
                     nodo = Nodo(4, "Nodo", (0,0,100), [x, y], current)
-                    nodo.calc_peso()
-                    print(f"acutal: {obj.coord}:{obj.f}, nuevo: {nodo.coord}:{nodo.f}")
+                    nodo.calc_peso(current)
+                    # print(f"actual: {obj.coord}:{obj.g}, nuevo{nodo.coord}:{nodo.g}")
+                    if obj.g > nodo.g:
+                        cls.open_list.remove(obj)
+                        obj.parent.childs.remove(obj)
+                        current.childs.append(nodo)
+                        cls.open_list.append(nodo)
+                        Todo.objetos[y//obj_size][x//obj_size] = nodo
+
                 
-                if obj.id == 3:
-                    return False
 
+        if current.parent.id != 1:
+            print(f"[{current.coord[0]//obj_size}, {current.coord[1]//obj_size}]{current.childs}")
         
-        cls.open_list = sorted(cls.open_list, key=lambda obj: obj.f)
-
-        cls.closed_list.append(current)
+        cls.open_list = sorted(cls.open_list, key=lambda obj: (obj.h, obj.f))
+        current.childs = sorted(current.childs, key=lambda obj: obj.f)
 
         return True
 
