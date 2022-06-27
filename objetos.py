@@ -327,41 +327,43 @@ class SerVivo(Materia):
 
         # inciar A*
         if evento == pygame.K_SPACE:
-            if self.buscarMeta:
-                Nodo.open_list = []
-                self.buscarMeta = False
-            else:
-                x,y = self.coord
-                raiz = Nodo(5, "Nodo raiz", (0,0,200), [x, y], None)
-                raiz.calc_peso(raiz)
-                Nodo.origen = raiz
-                Nodo.open_list.append(raiz)
-                Todo.objetos[raiz.coord[1]//obj_size][raiz.coord[0]//obj_size] = raiz
-                self.buscarMeta = True
+            x,y = self.coord
+            raiz = Nodo(5, "Nodo raiz", (0,0,200), [x, y], None, 0, 0)
+            raiz.calc_peso()
+            print(f"l {raiz.l}, g {raiz.g}")
+            Nodo.origen = raiz
+            Nodo.open_list.append(raiz)
+            Todo.objetos[raiz.coord[1]//obj_size][raiz.coord[0]//obj_size] = raiz
+            self.buscarMeta = True
 
 
 class Nodo(Materia):
     open_list = []
+    contador = 0
 
-    def __init__(self, id, name, color, coord, parent):
+    def __init__(self, id, name, color, coord, parent, l=float('inf'), g=float('inf')):
         super().__init__(id, name, color, coord)
         self.parent = parent
         self.ngb = []
         self.visited = False
-        self.g = float('inf')
-        self.h = float('inf')
+        self.l = l
+        self.g = g
     
     def draw(self, ventana):
         Font=pygame.font.SysFont('timesnewroman',  14)
-        lg=Font.render(str(round(self.g, 4)), False, (255,255,255), self.color)
-        lh=Font.render(str(round(self.h, 4)), False, (255,255,255), self.color)
+        lg=Font.render(str(f"g:{round(self.g, 4)}"), False, (255,255,255), self.color)
+        ll=Font.render(str(f"l:{round(self.l, 4)}"), False, (255,255,255), self.color)
         x = self.coord[0] + 2
         y = self.coord[1]
 
         size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
         pygame.draw.rect(ventana, self.color, size)
         ventana.blit(lg, (x, y))
-        ventana.blit(lh, (x, y+15))
+        ventana.blit(ll, (x, y+18))
+        if self.parent:
+            px, py = self.parent.coord[0]//obj_size, self.parent.coord[1]//obj_size
+            lp=Font.render(str(f"p:{px}, {py}"), False, (255,255,255), self.color)
+            ventana.blit(lp, (x, y+32))
 
     def __repr__(self):
         return f"\nnodo [{self.coord[0]//obj_size}, {self.coord[0]//obj_size}] g: {round(self.g, 4)} h: {round(self.h, 4)}"
@@ -397,14 +399,24 @@ class Nodo(Materia):
         return p
 
     def calc_peso(self):
-        px, py = parent.coord[0]//obj_size, parent.coord[1]//obj_size
-        mx, my = Todo.meta_actual[0]//obj_size, Todo.meta_actual[1]//obj_size
         x, y = self.coord[0]//obj_size, self.coord[1]//obj_size
-        self.g = math.sqrt((px-x)**2 + (py-y)**2)
-        self.h = math.sqrt((mx-x)**2 + (my-y)**2)
+
+        if self.parent:
+            px, py = self.parent.coord[0]//obj_size, self.parent.coord[1]//obj_size
+            self.l = math.sqrt((px-x)**2 + (py-y)**2)
+        mx, my = Todo.meta_actual[0]//obj_size, Todo.meta_actual[1]//obj_size
+        self.g = math.sqrt((mx-x)**2 + (my-y)**2)
+
+    def calc_peso_a_ngb(self, ngb):
+        x, y = self.coord[0]//obj_size, self.coord[1]//obj_size
+        nx, ny = ngb.coord[0]//obj_size, ngb.coord[1]//obj_size
+        return math.sqrt((nx-x)**2 + (ny-y)**2)
+
+
 
     @classmethod
     def Astar(cls):
+        cls.open_list = sorted(cls.open_list, key=lambda obj: obj.g)
         current = cls.open_list[0]
 
         ngb = current.checkNgb()
@@ -412,17 +424,29 @@ class Nodo(Materia):
         for _, n in ngb:
             if n:
                 x,y = n.coord
+                # se agregan nodos a los espacios vecinos
                 if n.id == 0:
-                    nodo = Nodo(4, "nodo", (0,0,100), [x, y], None)
+                    nodo = Nodo(4, "nodo", (0,0,100), [x, y], current)
                     current.ngb.append(nodo)
                     Todo.objetos[y//obj_size][x//obj_size] = nodo
-                    if nodo.g > current.g:
-                        nodo.calc_peso()
-                        nodo.parent = current
-                        print(nodo.g)
 
+        # for _, n in current.ngb:
+        #     cls.open_list.append(n)
+        #     temp = current.calc_peso_a_ngb(n)
+        #     if (current.l + temp) < n.l:
+        #         n.parent = current
+        #         n.l = current.l + temp
+        #         n.g = 
 
-        return False
+        
+        current.visited = True
+        cls.open_list.remove(current)
+
+        if cls.contador == 16:
+            return False
+        else:
+            cls.contador += 1
+
 
 
 
