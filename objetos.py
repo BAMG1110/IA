@@ -101,8 +101,9 @@ def borrarMapa():
     
 def datos():
     print(f"\nmeta actual: {Todo.meta_actual}")
-    print(f"abiertos: {Nodo.open_list}")
-    print(f"analizados: {Nodo.closed_list} len {len(Nodo.closed_list)}\n")
+    for n in Nodo.open_list:
+        print(f"\n[{n.coord[0]//obj_size}, {n.coord[1]//obj_size}]{n.parent}")
+    print(f"abiertos:\n{Nodo.open_list}")
 
 
 class Materia():
@@ -327,10 +328,11 @@ class SerVivo(Materia):
         # inciar A*
         if evento == pygame.K_SPACE:
             if self.buscarMeta:
+                Nodo.open_list = []
                 self.buscarMeta = False
             else:
                 x,y = self.coord
-                raiz = Nodo(5, "Nodo raiz", (0,0,200), [x, y], self)
+                raiz = Nodo(5, "Nodo raiz", (0,0,200), [x, y], None)
                 raiz.calc_peso(raiz)
                 Nodo.origen = raiz
                 Nodo.open_list.append(raiz)
@@ -340,23 +342,19 @@ class SerVivo(Materia):
 
 class Nodo(Materia):
     open_list = []
-    closed_list = []
-    origen = None
 
     def __init__(self, id, name, color, coord, parent):
         super().__init__(id, name, color, coord)
         self.parent = parent
-        self.childs = []
-        self.open = False
-        self.g = 0
-        self.h = 0
-        self.f = 0
+        self.ngb = []
+        self.visited = False
+        self.g = float('inf')
+        self.h = float('inf')
     
     def draw(self, ventana):
         Font=pygame.font.SysFont('timesnewroman',  14)
         lg=Font.render(str(round(self.g, 4)), False, (255,255,255), self.color)
         lh=Font.render(str(round(self.h, 4)), False, (255,255,255), self.color)
-        lf=Font.render(str(round(self.f, 4)), False, (255,255,255), self.color)
         x = self.coord[0] + 2
         y = self.coord[1]
 
@@ -364,99 +362,68 @@ class Nodo(Materia):
         pygame.draw.rect(ventana, self.color, size)
         ventana.blit(lg, (x, y))
         ventana.blit(lh, (x, y+15))
-        ventana.blit(lf, (x, y+30))
 
     def __repr__(self):
-        return f"\n\t{self.coord[0]//obj_size, self.coord[1]//obj_size}"
-    #     return f"\nparent {self.parent.coord}, c:{self.coord}, p:{self.f}"
-    # #     return f"\nparent: {self.parent.coord}, \t[{self.coord}:{round(self.f, 4)}]"
+        return f"\nnodo [{self.coord[0]//obj_size}, {self.coord[0]//obj_size}] g: {round(self.g, 4)} h: {round(self.h, 4)}"
     
-    def obtenerAdya(self):
+    def checkNgb(self):
         p = checkAround(self.coord)
 
         if p[0][1]:
             if p[0][1].id == 2:
                 p[0] = ["E", None]
-
         if p[2][1]:
             if p[2][1].id == 2:
                 p[2] = ["N", None]
-
         if p[4][1]:
             if p[4][1].id == 2:
                 p[4] = ["O", None]
-
         if p[6][1]:
             if p[6][1].id == 2:
                 p[6] = ["S", None]
-        
         if p[1][1]:
             if not(p[0][1]) and not(p[2][1]) or p[1][1].id == 2:
                 p[1] = ["NE", None]
-
         if p[3][1]:
             if not(p[2][1]) and not(p[4][1]) or p[3][1].id == 2:
                 p[3] = ["NO", None]
-
         if p[5][1]:
             if not(p[4][1]) and not(p[6][1]) or p[5][1].id == 2:
                 p[5] = ["SO", None]
-
         if p[7][1]:
             if not(p[6][1]) and not(p[0][1]) or p[7][1].id == 2:
                 p[7] = ["SE", None]
 
         return p
 
-    def calc_peso(self, parent):
+    def calc_peso(self):
         px, py = parent.coord[0]//obj_size, parent.coord[1]//obj_size
         mx, my = Todo.meta_actual[0]//obj_size, Todo.meta_actual[1]//obj_size
         x, y = self.coord[0]//obj_size, self.coord[1]//obj_size
-        self.g = math.sqrt((px-x)**2 + (py-y)**2) + parent.g
+        self.g = math.sqrt((px-x)**2 + (py-y)**2)
         self.h = math.sqrt((mx-x)**2 + (my-y)**2)
-        self.f = self.g + self.h
 
     @classmethod
     def Astar(cls):
-        current = cls.open_list.pop(0)
-        cls.closed_list.append(current)
+        current = cls.open_list[0]
 
-        adya = current.obtenerAdya()
+        ngb = current.checkNgb()
 
-        for d, obj in adya:
-            if obj:
-                if obj.id == 3:
-                    for n in cls.closed_list:
-                        n.color = (0,254,0)
-                    return False
-                if obj.id == 0:
-                    x,y = obj.coord
-                    nodo = Nodo(4, "Nodo", (0,0,100), [x, y], current)
-                    nodo.calc_peso(current)
-                    cls.open_list.append(nodo)
-                    current.childs.append(nodo)
+        for _, n in ngb:
+            if n:
+                x,y = n.coord
+                if n.id == 0:
+                    nodo = Nodo(4, "nodo", (0,0,100), [x, y], None)
+                    current.ngb.append(nodo)
                     Todo.objetos[y//obj_size][x//obj_size] = nodo
-                elif obj.id == 4:
-                    x,y = obj.coord
-                    nodo = Nodo(4, "Nodo", (0,0,100), [x, y], current)
-                    nodo.calc_peso(current)
-                    # print(f"actual: {obj.coord}:{obj.g}, nuevo{nodo.coord}:{nodo.g}")
-                    if obj.g > nodo.g:
-                        cls.open_list.remove(obj)
-                        obj.parent.childs.remove(obj)
-                        current.childs.append(nodo)
-                        cls.open_list.append(nodo)
-                        Todo.objetos[y//obj_size][x//obj_size] = nodo
+                    if nodo.g > current.g:
+                        nodo.calc_peso()
+                        nodo.parent = current
+                        print(nodo.g)
 
-                
 
-        if current.parent.id != 1:
-            print(f"[{current.coord[0]//obj_size}, {current.coord[1]//obj_size}]{current.childs}")
-        
-        cls.open_list = sorted(cls.open_list, key=lambda obj: (obj.h, obj.f))
-        current.childs = sorted(current.childs, key=lambda obj: obj.f)
+        return False
 
-        return True
 
 
 
