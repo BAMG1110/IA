@@ -74,7 +74,7 @@ if __name__ == "__main__":
         
         # A*
         if mabby.buscarMeta:
-            mabby.buscarMeta = Nodo.Astar()
+            mabby.buscarMeta = mabby.Astar()
         
         if mabby.mostrarMapa:
             mabby.verMapa(ventana)

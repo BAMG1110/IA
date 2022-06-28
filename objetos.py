@@ -101,9 +101,7 @@ def borrarMapa():
     
 def datos():
     print(f"\nmeta actual: {Todo.meta_actual}")
-    for n in Nodo.open_list:
-        print(f"\n[{n.coord[0]//obj_size}, {n.coord[1]//obj_size}]{n.parent}")
-    print(f"abiertos:\n{Nodo.open_list}")
+    print(f"siguiente: {Nodo.open_list[0]}\nabiertos:\n{Nodo.open_list}")
 
 
 class Materia():
@@ -336,6 +334,39 @@ class SerVivo(Materia):
             Todo.objetos[raiz.coord[1]//obj_size][raiz.coord[0]//obj_size] = raiz
             self.buscarMeta = True
 
+    def Astar(self):
+        Nodo.open_list = sorted(Nodo.open_list, key=lambda obj: obj.g)
+        datos()
+        current = Nodo.open_list.pop(0)
+
+        ngb = current.checkNgb()
+
+        for _, n in ngb:
+            if n:
+                x,y = n.coord
+                # se agregan nodos a los espacios vecinos
+                if n.id == 3:
+                    current.ngb.append(n)
+                elif n.id == 0:
+                    nodo = Nodo(4, "nodo", (0,0,100), [x, y], current)
+                    current.ngb.append(nodo)
+                    Todo.objetos[y//obj_size][x//obj_size] = nodo
+                elif n.id == 4 and n.visited == False:
+                    current.ngb.append(n)
+
+        for k in current.ngb:
+            if k.id == 3:
+                return False
+            tmp_l, tmp_g = k.calc_pesos(current)
+            if (current.l + tmp_l) < k.l:
+                k.l = current.l + tmp_l
+                k.g = tmp_g + k.l
+                k.parent = current
+                Nodo.open_list.append(k)
+        current.visited = True
+
+        return True
+
 
 class Nodo(Materia):
     open_list = []
@@ -366,7 +397,7 @@ class Nodo(Materia):
             ventana.blit(lp, (x, y+32))
 
     def __repr__(self):
-        return f"\nnodo [{self.coord[0]//obj_size}, {self.coord[0]//obj_size}] g: {round(self.g, 4)} h: {round(self.h, 4)}"
+        return f"nodo [{self.coord[0]//obj_size}, {self.coord[1]//obj_size}]"
     
     def checkNgb(self):
         p = checkAround(self.coord)
@@ -407,45 +438,11 @@ class Nodo(Materia):
         mx, my = Todo.meta_actual[0]//obj_size, Todo.meta_actual[1]//obj_size
         self.g = math.sqrt((mx-x)**2 + (my-y)**2)
 
-    def calc_peso_a_ngb(self, ngb):
+    def calc_pesos(self, origen):
         x, y = self.coord[0]//obj_size, self.coord[1]//obj_size
-        nx, ny = ngb.coord[0]//obj_size, ngb.coord[1]//obj_size
-        return math.sqrt((nx-x)**2 + (ny-y)**2)
-
-
-
-    @classmethod
-    def Astar(cls):
-        cls.open_list = sorted(cls.open_list, key=lambda obj: obj.g)
-        current = cls.open_list[0]
-
-        ngb = current.checkNgb()
-
-        for _, n in ngb:
-            if n:
-                x,y = n.coord
-                # se agregan nodos a los espacios vecinos
-                if n.id == 0:
-                    nodo = Nodo(4, "nodo", (0,0,100), [x, y], current)
-                    current.ngb.append(nodo)
-                    Todo.objetos[y//obj_size][x//obj_size] = nodo
-
-        # for _, n in current.ngb:
-        #     cls.open_list.append(n)
-        #     temp = current.calc_peso_a_ngb(n)
-        #     if (current.l + temp) < n.l:
-        #         n.parent = current
-        #         n.l = current.l + temp
-        #         n.g = 
-
-        
-        current.visited = True
-        cls.open_list.remove(current)
-
-        if cls.contador == 16:
-            return False
-        else:
-            cls.contador += 1
+        nx, ny = origen.coord[0]//obj_size, origen.coord[1]//obj_size
+        mx, my = Todo.meta_actual[0]//obj_size, Todo.meta_actual[1]//obj_size
+        return math.sqrt((nx-x)**2 + (ny-y)**2), math.sqrt((mx-x)**2 + (my-y)**2)
 
 
 
