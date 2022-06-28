@@ -5,7 +5,7 @@ import pickle
 pygame.font.init()
 map_width       = 640
 map_height      = 640
-obj_size        = 64
+obj_size        = 32
 
 #nombre del mapa a guardar
 nmg = 'data_n.pickle'
@@ -355,21 +355,35 @@ class SerVivo(Materia):
                     current.ngb.append(n)
 
         for k in current.ngb:
+
             if k.id == 3:
+                current.color = (0,100,0)
+                self.crear_path(current)
                 return False
+
             tmp_l, tmp_g = k.calc_pesos(current)
+
             if (current.l + tmp_l) < k.l:
                 k.l = current.l + tmp_l
                 k.g = tmp_g + k.l
                 k.parent = current
                 Nodo.open_list.append(k)
+
+
         current.visited = True
 
         return True
 
 
+    def crear_path(self, nodo):
+        if nodo.parent:
+            nodo.parent.color = (0,100,0)
+            self.crear_path(nodo.parent)
+
+
 class Nodo(Materia):
     open_list = []
+    nodo_final = None
     contador = 0
 
     def __init__(self, id, name, color, coord, parent, l=float('inf'), g=float('inf')):
@@ -381,20 +395,20 @@ class Nodo(Materia):
         self.g = g
     
     def draw(self, ventana):
-        Font=pygame.font.SysFont('timesnewroman',  14)
-        lg=Font.render(str(f"g:{round(self.g, 4)}"), False, (255,255,255), self.color)
-        ll=Font.render(str(f"l:{round(self.l, 4)}"), False, (255,255,255), self.color)
+        Font=pygame.font.SysFont('timesnewroman',  11)
+        # lg=Font.render(str(f"g:{round(self.g, 4)}"), False, (255,255,255), self.color)
+        # ll=Font.render(str(f"l:{round(self.l, 4)}"), False, (255,255,255), self.color)
         x = self.coord[0] + 2
         y = self.coord[1]
 
         size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
         pygame.draw.rect(ventana, self.color, size)
-        ventana.blit(lg, (x, y))
-        ventana.blit(ll, (x, y+18))
+        # ventana.blit(lg, (x, y))
+        # ventana.blit(ll, (x, y+18))
         if self.parent:
             px, py = self.parent.coord[0]//obj_size, self.parent.coord[1]//obj_size
-            lp=Font.render(str(f"p:{px}, {py}"), False, (255,255,255), self.color)
-            ventana.blit(lp, (x, y+32))
+            lp=Font.render(str(f"{px},{py}"), False, (255,255,255), self.color)
+            ventana.blit(lp, (x, y+15))
 
     def __repr__(self):
         return f"nodo [{self.coord[0]//obj_size}, {self.coord[1]//obj_size}]"

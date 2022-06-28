@@ -16,8 +16,8 @@ if __name__ == "__main__":
     
     while run:
         # time delay _& fps
-        pygame.time.delay(30)
-        clock.tick(30)
+        # pygame.time.delay(30)
+        clock.tick(60)
 
         # eventos
         for e in pygame.event.get():
@@ -37,9 +37,9 @@ if __name__ == "__main__":
                         datos()
                     
                     # guardar y borrar mapa
-                    # elif key == pygame.K_v:
-                    #     guardarMapa()
-                    #     borrarMapa()
+                    elif key == pygame.K_v:
+                        guardarMapa()
+                        borrarMapa()
 
                     # cargar mapas 1-3
                     elif key == pygame.K_1:
