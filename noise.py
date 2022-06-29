@@ -53,6 +53,15 @@ if __name__ == "__main__":
                         cargarMapa('data_3.pickle')
                     elif key == pygame.K_4:
                         borrarMapa()
+                        cargarMapa('data_4.pickle')
+                    elif key == pygame.K_5:
+                        borrarMapa()
+                        cargarMapa('data_5.pickle')
+                    elif key == pygame.K_6:
+                        borrarMapa()
+                        cargarMapa('data_6.pickle')
+                    elif key == pygame.K_0:
+                        borrarMapa()
                         cargarMapa('data_n.pickle')
 
                     # definir meta
