@@ -154,6 +154,7 @@ class Todo:
 
     @classmethod
     def defMeta(cls):
+        Nodo.open_list = []
         x, y = cls.mouse()
         for fila in cls.objetos:
             for obj in fila:

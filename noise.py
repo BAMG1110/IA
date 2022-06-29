@@ -10,8 +10,8 @@ if __name__ == "__main__":
 
     # objetos
     mabby = SerVivo(id=1, name="mabby", color=(255,0,255), coord=[0, 0])
-    Todo.objetos[9][9] = Materia(3, "Meta", (0,255,0), [576, 576])
-    Todo.meta_actual = [576, 576]
+    Todo.objetos[19][19] = Materia(3, "Meta", (0,255,0), [608, 608])
+    Todo.meta_actual = [608, 608]
     ventana.fill((0,0,0))
     
     while run:
