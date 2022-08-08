@@ -3,9 +3,9 @@ import random, math
 import pickle
 
 pygame.font.init()
-map_width       = 192
-map_height      = 192
-obj_size        = 32
+map_width       = 192*2
+map_height      = 192*2
+obj_size        = 64
 
 #nombre del mapa a guardar
 nmg = 'data_n.pickle'
@@ -113,7 +113,12 @@ class Materia():
         self.size = size
     
     def __repr__(self):
-        return f"{self.id}"
+        return f"{round(self.costo, 2)}"
+
+    def calc_costo(self):
+        x, y = self.coord[0]//obj_size, self.coord[1]//obj_size
+        mx, my = Todo.meta_actual[0]//obj_size, Todo.meta_actual[1]//obj_size
+        self.costo = math.sqrt((mx-x)**2 + (my-y)**2)
 
     def draw(self, ventana):
         size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
@@ -215,10 +220,10 @@ class SerVivo(Materia):
         self.coord = pos
 
     def verMapa(self, ventana):
-        for i in range(len(self.mapa)):
-            for j in range(len(self.mapa[0])):
+        for i in range(len(Todo.objetos)):
+            for j in range(len(Todo.objetos[0])):
                 Font=pygame.font.SysFont('timesnewroman',  15)
-                l=Font.render(str(self.mapa[j][i]), False, (254,254,254), (0,0,0))
+                l=Font.render(str(Todo.objetos[j][i]), False, (254,254,254), (0,0,0))
                 ventana.blit(l, (i*obj_size + (obj_size / 4), j*obj_size + (obj_size / 4)))
 
     def percibir(self):

@@ -1,6 +1,4 @@
 import numpy as np
-import nnfs
-from nnfs.datasets import spiral_data
 
 # cada neurona recibe n entradas, devuelve 1 salida
 # capa de n neuronas
@@ -43,31 +41,3 @@ class Loss_catCrossEntropy(Loss):
 
         negative_log = -np.log(correct_confidences)
         return negative_log
-
-nnfs.init()
-# set de datos con 10 sets de 2 valores (x, y) para 3 clases de datos
-X, y = spiral_data(samples=10, classes=3)
-
-capa_1 = Layer_Dense(2, 3)
-capa_2 = Layer_Dense(3, 3)
-
-act_1 = Activation_ReLU()
-act_2 = Activation_Softmax()
-
-loss_calc = Loss_catCrossEntropy()
-
-# secuencia
-capa_1.forward(X)
-act_1.forward(capa_1.output)
-capa_2.forward(act_1.output)
-act_2.forward(capa_2.output)
-
-loss = loss_calc.calculate(act_2.output, y)
-
-print("X\n", X)
-print("y\n", y)
-print("capa_1\n", capa_1.output)
-print("act_1\n", act_1.output)
-print("capa_2\n", capa_2.output)
-print("act_2\n", act_2.output)
-print("loss\n", loss)
