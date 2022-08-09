@@ -2,6 +2,8 @@ import numpy as np
 
 # cada neurona recibe n entradas, devuelve 1 salida
 # capa de n neuronas
+LR = 0.5
+
 class Layer_Dense:
     def __init__(self, n_inputs, n_neurons):
         # matriz de tamaño n_inputs x n_neurons
@@ -10,11 +12,49 @@ class Layer_Dense:
 
     def forward(self, inputs):
         self.output = np.dot(inputs, self.weights) + self.biases
+    
+    def backdrop(self, y, a1, a0):
+        print("backward propagation")
+
+        pd_C0 = (-2*(y - a1))[0]
+        print(f">>>>> pd_C0\n{pd_C0}")
+
+        dw = a0[0]
+        print(f">>>>> dw\n{dw}")
+
+        db = 1
+        print(f">>>>> db\n{db}")
+        
+        da0 = []
+        for i in range(len(self.weights)):
+            da0.append(np.sum(self.weights[i]))
+        print(f">>>>> da0\n{da0}")
+
+        # pesos
+        for i in range(len(self.weights)):
+            for j in range(len(self.weights[i])):
+                dco = (pd_C0[j] * dw[i]) * LR
+                self.weights[i][j] = self.weights[i][j] - dco
+        
+        # biases
+        for i in range(len(self.biases[0])):
+            dco = pd_C0[i] * LR
+            self.biases[0][i] = self.biases[0][i] - dco
+
+        # y para a0
+        for i in range(len(self.weights)):
+            for j in range(len(self.weights[i])):
+                dco = (pd_C0[j] * dw[i]) * LR
+                self.weights[i][j] = self.weights[i][j] - dco       
+
+
+
 
 # hace 0 los numeros negativos
 class Activation_ReLU:
     def forward(self, inputs):
         self.output = np.maximum(0, inputs)
+    
 
 # toma los valores de salida y los traduce a valores entre el 0 y 1
 class Activation_Softmax:

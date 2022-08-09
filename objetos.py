@@ -107,9 +107,9 @@ def obtenerCostoAdyacentes(p):
     adyacentes = []
     for i in p:
         if i[1]:
-            adyacentes.append(i[1].costo)
-        else:
             adyacentes.append(0)
+        else:
+            adyacentes.append(1)
     return adyacentes
 
 
@@ -120,14 +120,6 @@ class Materia():
         self.color = color
         self.coord = coord
         self.size = size
-    
-    def __repr__(self):
-        return f"{round(self.costo, 2)}"
-
-    def calc_costo(self):
-        x, y = self.coord[0]//obj_size, self.coord[1]//obj_size
-        mx, my = Todo.meta_actual[0]//obj_size, Todo.meta_actual[1]//obj_size
-        self.costo = math.sqrt((mx-x)**2 + (my-y)**2)
 
     def draw(self, ventana):
         size = (self.coord[0], self.coord[1], self.size[0], self.size[1])
@@ -328,7 +320,7 @@ class SerVivo(Materia):
 
         # descripcion
         if evento == pygame.K_i:
-            self.descripcion
+            print(self.percibir())
         
         # mapa
         if evento == pygame.K_u:
