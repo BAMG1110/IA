@@ -40,4 +40,4 @@ class Loss_catCrossEntropy(Loss):
             correct_confidences = np.sum(y_pred_clipped*y_true, axis=1)
 
         negative_log = -np.log(correct_confidences)
-        return negative_log
+        return negative_log  

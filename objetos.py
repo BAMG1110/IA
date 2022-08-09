@@ -103,6 +103,15 @@ def datos():
     print(f"\nmeta actual: {Todo.meta_actual}")
     print(f"siguiente: {Nodo.open_list[0]}\nabiertos:\n{Nodo.open_list}")
 
+def obtenerCostoAdyacentes(p):
+    adyacentes = []
+    for i in p:
+        if i[1]:
+            adyacentes.append(i[1].costo)
+        else:
+            adyacentes.append(0)
+    return adyacentes
+
 
 class Materia():
     def __init__(self, id, name, color, coord, size=[obj_size, obj_size]):
@@ -213,6 +222,9 @@ class SerVivo(Materia):
 
         self.mostrarMapa = False
         self.buscarMeta = False
+
+    def __repr__(self):
+        return f"{self.id}"
 
     def defOrigen(self):
         x,y = Todo.mouse()
