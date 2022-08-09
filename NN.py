@@ -41,14 +41,20 @@ class Layer_Dense:
             dco = pd_C0[i] * LR
             self.biases[0][i] = self.biases[0][i] - dco
 
+        print(f"@@@@\n{self.weights}\n@@@@")
+
         # y para a0
-        for i in range(len(self.weights)):
-            for j in range(len(self.weights[i])):
-                dco = (pd_C0[j] * dw[i]) * LR
-                self.weights[i][j] = self.weights[i][j] - dco       
+        yn = []
+        for i in range(len(pd_C0)):
+            temp = []
+            for j in range(len(da0)):
+                temp.append(pd_C0[i]*da0[j])
+            print(temp)
+            yn.append(temp)
 
-
-
+        yn = np.transpose(yn)
+        for ñ in yn:
+            print(sum(ñ))
 
 # hace 0 los numeros negativos
 class Activation_ReLU:
