@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     # Red neuronal
     X = []
-    y = np.array([0, 0, 0, 0, 0, 0, 0, 1])
+    y3 = np.array([0, 0, 0, 0, 0, 0, 0, 1])
 
     a = mabby.percibir()
     for obj in a:
@@ -45,17 +45,22 @@ if __name__ == "__main__":
     act_2.forward(capa_2.output)
     capa_3.forward(act_2.output)
     act_3.forward(capa_3.output)
-    capa_3.backdrop(y, act_3.output, act_2.output)
+    y2 = capa_3.backdrop(y3, act_3.output, act_2.output[0])
+    y1 = capa_2.backdrop(y2, act_2.output, act_1.output[0])
+    capa_1.backdrop(y1, act_1.output, X)
 
     print("\n<<<<<<<<<<<<<<<<<<<<")
     print("X\n", X)
-    print("y\n", y)
+    print("y\n", y3)
     print("capa_1\n", capa_1.weights)
     print("act_1\n", act_1.output)
     print("capa_2\n", capa_2.output)
     print("act_2\n", act_2.output)
     print("capa_3\n", capa_3.output)
     print("act_3\n", act_3.output)
+    print("y3", y3)
+    print("y2", y2)
+    print("y1", y1)
 
     # Obtener SSR x resultado
     # Obtener b, wn x 

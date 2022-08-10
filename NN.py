@@ -14,21 +14,18 @@ class Layer_Dense:
         self.output = np.dot(inputs, self.weights) + self.biases
     
     def backdrop(self, y, a1, a0):
-        print("backward propagation")
-
         pd_C0 = (-2*(y - a1))[0]
-        print(f">>>>> pd_C0\n{pd_C0}")
 
-        dw = a0[0]
-        print(f">>>>> dw\n{dw}")
+        dw = a0
 
         db = 1
-        print(f">>>>> db\n{db}")
         
         da0 = []
-        for i in range(len(self.weights)):
-            da0.append(np.sum(self.weights[i]))
-        print(f">>>>> da0\n{da0}")
+        for i in range(len(a0)):
+            # print(pd_C0, "\npd_c0\n")
+            # print(self.weights[i], "\nweights\n")
+            # print(self.weights[i] * pd_C0, "\nmult\n")
+            da0.append(np.sum(self.weights[i] * pd_C0))
 
         # pesos
         for i in range(len(self.weights)):
@@ -41,20 +38,9 @@ class Layer_Dense:
             dco = pd_C0[i] * LR
             self.biases[0][i] = self.biases[0][i] - dco
 
-        print(f"@@@@\n{self.weights}\n@@@@")
+        return da0
 
-        # y para a0
-        yn = []
-        for i in range(len(pd_C0)):
-            temp = []
-            for j in range(len(da0)):
-                temp.append(pd_C0[i]*da0[j])
-            print(temp)
-            yn.append(temp)
-
-        yn = np.transpose(yn)
-        for ñ in yn:
-            print(sum(ñ))
+        
 
 # hace 0 los numeros negativos
 class Activation_ReLU:
