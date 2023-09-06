@@ -3,9 +3,10 @@ import random, math
 import pickle
 
 pygame.font.init()
-map_width       = 192*2
-map_height      = 192*2
-obj_size        = 64
+
+obj_size        = 16
+map_width       = obj_size*40
+map_height      = obj_size*40
 
 #nombre del mapa a guardar
 nmg = 'data_n.pickle'

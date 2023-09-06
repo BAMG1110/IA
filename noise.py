@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
     while run:
         # time delay _& fps
-        pygame.time.delay(300)
+        pygame.time.delay(30)
         clock.tick(200)
 
         # eventos
